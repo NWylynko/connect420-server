@@ -11,7 +11,7 @@ games = {}
 io.on("connection", socket => {
   console.log("connection", socket.id)
 
-  socket.emit("connect")
+  socket.emit("connect", {yes})
 
   socket.on("room", room => {
 
@@ -28,6 +28,7 @@ io.on("connection", socket => {
       socket.join(uid)
     }
 
+    console.log(`${socket.id} is connecting to ${room}`)
     games[room].addPlayer(socket.id)
   })
 
