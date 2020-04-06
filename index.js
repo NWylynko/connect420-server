@@ -7,39 +7,47 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3001;
 
 games = {}
+allClients = []
+
+app.get('/games', (req, res) => {
+  console.log("games", games)
+  res.send({ players: allClients, boards: { ...Object.keys(games).map(key => { return { id: key, players: games[key].clients, player1: games[key].player1, player2: games[key].player2 } }) } })
+})
 
 io.on("connection", socket => {
   console.log("connection", socket.id)
+  allClients.push(socket.id)
 
   socket.on("room", room => {
 
     if (room) {
+
       if (!games[room]) {
         games[room] = new Game(io, room)
       }
-      socket.join(room);
+
+      socket.join(room, (err) => { if (err) { console.error } });
+
       games[room].addPlayer(socket.id)
+
       console.log(`${socket.id} is connecting to ${room}`)
 
-    } else {
-      let uid = new Date().valueOf()
-      games[uid] = new Game(io, room)
-      socket.emit("room", uid)
-      socket.join(uid)
-      games[uid].addPlayer(socket.id)
-      console.log(`${socket.id} is connecting to ${uid}`)
     }
-    
+
   })
 
   socket.on('addCoin', ({ y }) => {
 
     let roomID = getRoom(socket)
-    games[roomID].addCoin(socket.id, y)
+    if (games[roomID]) {
+      games[roomID].addCoin(socket.id, y)
+    }
+    
 
   });
 
   socket.on("disconnect", () => {
+    Object.keys(games).forEach(index => games[index].removePlayer(socket.id))
     console.log("disconnection", socket.id)
   })
 })

@@ -7,16 +7,28 @@ const { generateBoard } = require("./generateBoard");
 class Game {
   constructor(io, room) {
     this.board = generateBoard(7, 7);
-    ;
     this.player1;
     this.player2;
     this.currentPlayer;
     this.room = room;
-    this.io = io.to(room);
+    this.io = io;
     this.running = false;
+    this.clients = []
+
+    setInterval(() => {
+      let numOfClients = this.clients.length;
+      if (numOfClients === 0) {
+        delete games[this.room];
+      }
+
+      if (!(this.clients.includes(this.player1) || this.clients.includes(this.player2))) {
+        delete games[this.room];
+      } 
+    }, 10000);
   }
 
   addPlayer(id) {
+    this.clients.push(id)
     if (!this.player1) {
       this.player1 = id;
       this.current_player = this.player1;
@@ -31,28 +43,27 @@ class Game {
     }
   }
 
+  removePlayer(id) {
+    if (this.clients.includes(id)) {
+      const index = this.clients.indexOf(id);
+      if (index > -1) {
+        this.clients.splice(index, 1);
+      }
+    }
+  }
+
   start() {
     this.running = true;
 
     this.io.to(this.player1).emit("status", "Its Your Turn!");
     this.io.to(this.player2).emit("status", "Other Players Turn!");
 
-    this.io.emit("board", this.board);
-
-    setInterval(() => {
-      let numOfClients = Object.keys(this.io.connected).length;
-
-      if (numOfClients === 0) {
-        delete games[this.room];
-      }
-    }, 10000);
+    this.io.to(this.room).emit("board", this.board);
 
   }
 
   addCoin(id, y) {
     if (this.running) {
-
-      console.log(id, y);
 
       let isPlayer = id === this.player1 || id === this.player2;
       let isThereCurrentTurn = this.current_player === id;
@@ -83,7 +94,7 @@ class Game {
           this.io.to(this.current_player).emit("status", "Its Your Turn!");
         }
 
-        this.io.emit("board", this.board);
+        this.io.to(this.room).emit("board", this.board);
       }
     }
   }
@@ -92,7 +103,7 @@ class Game {
     this.running = false;
 
     if (draw) {
-      this.io.emit("status", "Games a Draw!");
+      this.io.to(this.room).emit("status", "Games a Draw!");
     } else {
       let Winner = this.current_player === this.player1 ? this.player1 : this.player2;
       let Loser = this.current_player === this.player1 ? this.player2 : this.player1;
