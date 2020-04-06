@@ -1,5 +1,7 @@
 const { Game } = require("./Game");
 const app = require('express')();
+const cors = require('cors');
+app.use(cors("connect420.web.app"));
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3001;
