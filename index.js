@@ -11,8 +11,6 @@ games = {}
 io.on("connection", socket => {
   console.log("connection", socket.id)
 
-  socket.emit("connect", {foo: "bar"})
-
   socket.on("room", room => {
 
     if (room) {
