@@ -20,16 +20,18 @@ io.on("connection", socket => {
         games[room] = new Game(io, room)
       }
       socket.join(room);
+      games[room].addPlayer(socket.id)
+      console.log(`${socket.id} is connecting to ${room}`)
 
     } else {
       let uid = new Date().valueOf()
       games[uid] = new Game(io, room)
       socket.emit("room", uid)
       socket.join(uid)
+      games[uid].addPlayer(socket.id)
+      console.log(`${socket.id} is connecting to ${uid}`)
     }
-
-    console.log(`${socket.id} is connecting to ${room}`)
-    games[room].addPlayer(socket.id)
+    
   })
 
   socket.on('addCoin', ({ y }) => {
