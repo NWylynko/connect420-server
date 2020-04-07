@@ -1,7 +1,7 @@
 // adapted from https://github.com/bryanbraun/connect-four/blob/c96898cb34621e5ab3697a05e11895f6d4e6e7a2/js/functions.js
 
 function isDiagonalWin(board) {
-  var x = null,
+  let x = null,
     y = null,
     xtemp = null,
     ytemp = null,
@@ -10,7 +10,7 @@ function isDiagonalWin(board) {
     tally = 0;
 
   // Test for down-right diagonals across the top.
-  for (x = 0; x <= 6; x++) {
+  for (let x = 0; x <= 6; x++) {
     xtemp = x;
     ytemp = 0;
 
@@ -37,7 +37,7 @@ function isDiagonalWin(board) {
   }
 
   // Test for down-left diagonals across the top.
-  for (x = 0; x <= 6; x++) {
+  for (let x = 0; x <= 6; x++) {
     xtemp = x;
     ytemp = 0;
 
@@ -91,7 +91,7 @@ function isDiagonalWin(board) {
   }
 
   // Test for down-left diagonals down the right side.
-  for (y = 0; y <= 6; y++) {
+  for (let y = 0; y <= 6; y++) {
     xtemp = 6;
     ytemp = y;
 

@@ -23,7 +23,7 @@ class Game {
 
       if (!(this.clients.includes(this.player1) || this.clients.includes(this.player2))) {
         delete games[this.room];
-      } 
+      }
     }, 10000);
   }
 
@@ -54,6 +54,9 @@ class Game {
 
   start() {
     this.running = true;
+
+    this.io.to(this.player1).emit("info", { playerNum: 1 });
+    this.io.to(this.player2).emit("info", { playerNum: 2 });
 
     this.io.to(this.player1).emit("status", "Its Your Turn!");
     this.io.to(this.player2).emit("status", "Other Players Turn!");
@@ -107,11 +110,11 @@ class Game {
     } else {
       let Winner = this.current_player === this.player1 ? this.player1 : this.player2;
       let Loser = this.current_player === this.player1 ? this.player2 : this.player1;
-      
+
       this.io.to(Winner).emit("status", "You Win!!");
       this.io.to(Loser).emit("status", "You Lost :(");
     }
-    
+
   }
 
 }

@@ -7,10 +7,10 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3001;
 
 games = {}
-allClients = []
+let allClients = []
+let inLobby = []
 
 app.get('/games', (req, res) => {
-  console.log("games", games)
   res.send({ players: allClients, boards: { ...Object.keys(games).map(key => { return { id: key, players: games[key].clients, player1: games[key].player1, player2: games[key].player2 } }) } })
 })
 
@@ -20,7 +20,18 @@ io.on("connection", socket => {
 
   socket.on("room", room => {
 
-    if (room) {
+    if (room === "findingAGame") {
+      socket.emit("status", "Looking for a match!")
+      inLobby.push(socket.id)
+
+      if (inLobby.length >= 2) {
+        let room = Math.random().toString(36).substr(2, 5);
+        io.to(inLobby[0]).emit('setRoom', room)
+        inLobby.shift()
+        io.to(inLobby[0]).emit('setRoom', room)
+        inLobby.shift()
+      }
+    } else if (room) {
 
       if (!games[room]) {
         games[room] = new Game(io, room)
