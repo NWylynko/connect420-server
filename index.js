@@ -3,6 +3,8 @@ const app = require('express')();
 const cors = require('cors');
 app.use(cors("connect420.web.app"));
 const http = require('http').Server(app);
+app.use(helmet())
+const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = 3001;
 
