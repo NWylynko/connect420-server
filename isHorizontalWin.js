@@ -1,7 +1,7 @@
 // adapted from https://github.com/bryanbraun/connect-four/blob/c96898cb34621e5ab3697a05e11895f6d4e6e7a2/js/functions.js
 
 function isHorizontalWin(board) {
-  var currentValue = null, previousValue = 0, tally = 0;
+  let currentValue = null, previousValue = 0, tally = 0, maybe = [];
   // Scan each row in series, tallying the length of each series. If a series
   // ever reaches four, return true for a win.
   for (var y = 0; y <= 6; y++) {
@@ -9,12 +9,15 @@ function isHorizontalWin(board) {
       currentValue = board[y][x];
       if (currentValue === previousValue && currentValue !== 0) {
         tally += 1;
+        maybe.push([y, x])
       }
       else {
         // Reset the tally if you find a gap.
         tally = 0;
+        maybe = []
       }
-      if (tally === 4 - 1) {
+      if (tally === 3) {
+        console.log(maybe)
         return true;
       }
       previousValue = currentValue;
