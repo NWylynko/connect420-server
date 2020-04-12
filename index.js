@@ -9,16 +9,18 @@ const io = require('socket.io')(http);
 const port = 3001;
 
 games = {}
-let allClients = []
-let inLobby = []
+let numOfAllClients = 0
+let connnectedRightNow = 0
+var inLobby = []
 
 app.get('/games', (req, res) => {
-  res.send({ players: allClients, boards: { ...Object.keys(games).map(key => { return { id: key, players: games[key].clients, player1: games[key].player1, player2: games[key].player2 } }) } })
+  res.send({ inLobby, numOfAllClients, connnectedRightNow, boards: { ...Object.keys(games).map(key => { return { id: key, players: games[key].clients, player1: games[key].player1, player2: games[key].player2 } }) } })
 })
 
 io.on("connection", socket => {
   console.log("connection", socket.id)
-  allClients.push(socket.id)
+  numOfAllClients += 1
+  connnectedRightNow += 1
 
   socket.on("room", room => {
 
@@ -55,12 +57,16 @@ io.on("connection", socket => {
     if (games[roomID]) {
       games[roomID].addCoin(socket.id, y)
     }
-    
+
 
   });
 
   socket.on("disconnect", () => {
+    connnectedRightNow -= 1
     Object.keys(games).forEach(index => games[index].removePlayer(socket.id))
+    if (inLobby.includes(socket.id)) {
+      inLobby = arrayRemove(inLobby, socket.id)
+    }
     console.log("disconnection", socket.id)
   })
 })
@@ -73,4 +79,13 @@ function getRoom(socket) {
   let { rooms } = socket
   delete rooms[socket.id]
   return Object.keys(rooms)[0]
+}
+
+function arrayRemove(arr, value) {
+
+  // from https://love2dev.com/blog/javascript-remove-from-array/
+
+  return arr.filter(function (ele) {
+    return ele != value;
+  });
 }
