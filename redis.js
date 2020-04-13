@@ -2,7 +2,7 @@ const { promisify } = require("util");
 
 const REDISCONFIG = require("./redis.config")
 const redis = require('redis');
-const client = redis.createClient(REDISCONFIG);
+const client = redis.createClient(process.env.REDIS_URL ? process.env.REDIS_URL : REDISCONFIG);
 
 client.on("ready", () => {
   console.log('redis is ready')

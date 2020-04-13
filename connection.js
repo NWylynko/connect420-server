@@ -13,7 +13,7 @@ const io = require('socket.io')(http);
 
 const REDISCONFIG = require("./redis.config")
 const redis = require('socket.io-redis')
-io.adapter(redis(REDISCONFIG))
+io.adapter(redis(process.env.REDIS_URL ? process.env.REDIS_URL : REDISCONFIG))
 
 let port = 3001;
 

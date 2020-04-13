@@ -1,10 +1,11 @@
 FROM node:13
 
-WORKDIR /app
-COPY package.json /app
+WORKDIR /var/www/app
+
+COPY package.json ./
 RUN yarn
 
-COPY . /app
+COPY . .
 
 CMD node index.js
 
