@@ -6,7 +6,7 @@ module.exports = {
   port: 6379,
   path: null,
   url: null,
-  auth_pass: "",
+  auth_pass: "test",
   family: 'IPv4',
   prefix: null,
 }

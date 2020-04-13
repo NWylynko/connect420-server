@@ -1,121 +1,185 @@
+const { gameKey, clientKey } = require("./redisKey");
 const { isVerticalWin } = require("./isVerticalWin");
 const { isHorizontalWin } = require("./isHorizontalWin");
 const { isDiagonalWin } = require("./isDiagonalWin");
 const { isGameADraw } = require("./isGameADraw");
 const { generateBoard } = require("./generateBoard");
 
-class Game {
-  constructor(io, room) {
-    this.board = generateBoard(7, 7);
-    this.player1;
-    this.player2;
-    this.currentPlayer;
-    this.room = room;
-    this.io = io;
-    this.running = false;
-    this.clients = []
+async function addPlayer(redis, io, room, id) {
 
-    setInterval(() => {
-      let numOfClients = this.clients.length;
-      if (numOfClients === 0) {
-        delete games[this.room];
-      }
+  redis.rpush(gameKey(room, 'clients'), id) // add socket.id to the array of clients
+  redis.setAsync(clientKey(id, 'room'), room) // set the clients room to the room id
 
-      if (!(this.clients.includes(this.player1) || this.clients.includes(this.player2))) {
-        delete games[this.room];
-      }
-    }, 10000);
+  let { player1, player2 } = await getPlayers(redis, room) // could and will be null
+
+  if (!player1) {
+    redis.setAsync(gameKey(room, 'player1'), id) // set player1 to socket.id
+    redis.setAsync(gameKey(room, 'current_player'), id) // set current_player to socket.id
   }
+  else if (!player2) {
+    redis.setAsync(gameKey(room, 'player2'), id) // set player to socket.id
 
-  addPlayer(id) {
-    this.clients.push(id)
-    if (!this.player1) {
-      this.player1 = id;
-      this.current_player = this.player1;
-    }
-    else if (!this.player2) {
-      this.player2 = id;
-      this.start(); // two players have join
-    }
-    else {
-      this.io.to(id).emit("status", "Game is full, your a Viewer");
-      this.io.to(id).emit("board", this.board);
-    }
+    start(redis, io, room); // two players have joined
   }
-
-  removePlayer(id) {
-    if (this.clients.includes(id)) {
-      const index = this.clients.indexOf(id);
-      if (index > -1) {
-        this.clients.splice(index, 1);
-      }
-    }
+  else { // if a third client joins they are just going to watch
+    io.to(id).emit("status", 3);
+    let board = await redis.getJSON(gameKey(room, 'board'))
+    io.to(id).emit("board", board);
   }
+}
 
-  start() {
-    this.running = true;
+async function removePlayer(redis, io, id) {
 
-    this.io.to(this.player1).emit("info", { playerNum: 1 });
-    this.io.to(this.player2).emit("info", { playerNum: 2 });
+  let room = await redis.getAsync(clientKey(id, 'room')) // get room of player
 
-    this.io.to(this.player1).emit("status", "Its Your Turn!");
-    this.io.to(this.player2).emit("status", "Other Players Turn!");
+  deleteClientData(redis, id)
 
-    this.io.to(this.room).emit("board", this.board);
+  if (room) { // user wont be in a room when they disconnect from the lobby to join a room
 
-  }
+    redis.lremAsync(gameKey(room, 'clients'), 1, id) // remove player from game clients
 
-  addCoin(id, y) {
-    if (this.running) {
+    let clients = await redis.lrangeAsync(gameKey(room, 'clients'), 0, -1) // get clients remaining
 
-      let isPlayer = id === this.player1 || id === this.player2;
-      let isThereCurrentTurn = this.current_player === id;
-
-      if (isPlayer && isThereCurrentTurn) {
-
-        let placed = false;
-
-        for (let TryX = 6; TryX >= 0; TryX--) {
-          if (this.board[TryX][y] === 0) {
-            this.board[TryX][y] = id === this.player1 ? 1 : 2;
-            placed = true;
-            TryX = 0; // exit out of loop
-          }
-        }
-
-        if (isHorizontalWin(this.board)) {
-          this.win();
-        } else if (isDiagonalWin(this.board)) {
-          this.win();
-        } else if (isVerticalWin(this.board)) {
-          this.win();
-        } else if (isGameADraw(this.board)) {
-          this.win(true);
-        } else if (placed) {
-          this.io.to(this.current_player).emit("status", "Great Play!");
-          this.current_player = id === this.player1 ? this.player2 : this.player1;
-          this.io.to(this.current_player).emit("status", "Its Your Turn!");
-        }
-
-        this.io.to(this.room).emit("board", this.board);
-      }
-    }
-  }
-
-  win(draw) {
-    this.running = false;
-
-    if (draw) {
-      this.io.to(this.room).emit("status", "Games a Draw!");
+    if (clients.length === 0) {
+      deleteGameData(redis, room)
     } else {
-      let Winner = this.current_player === this.player1 ? this.player1 : this.player2;
-      let Loser = this.current_player === this.player1 ? this.player2 : this.player1;
 
-      this.io.to(Winner).emit("status", "You Win!!");
-      this.io.to(Loser).emit("status", "You Lost :(");
+      let { player1, player2 } = await getPlayers(redis, room)
+      let isRunning = await redis.getBoolean(gameKey(room, 'running'))
+
+      if (id === player1 || id === player2) {
+        if (isRunning) {
+          io.to(room).emit("status", 8);
+        }
+        deleteGameData(redis, room)
+      }
     }
 
   }
 
 }
-exports.Game = Game;
+
+async function deleteClientData(redis, id) {
+  redis.del([
+    clientKey(id, 'room')
+  ])
+}
+
+async function deleteGameData(redis, room) {
+  redis.del([
+    gameKey(room, 'player1'),
+    gameKey(room, 'player2'),
+    gameKey(room, 'current_player'),
+    gameKey(room, 'board'),
+    gameKey(room, 'running'),
+    gameKey(room, 'clients'),
+    gameKey(room, 'exists')
+  ])
+  redis.lremAsync("games", 1, room)
+}
+
+async function start(redis, io, room) {
+
+  redis.setJSON(gameKey(room, 'board'), generateBoard(7, 7)) // generate a new board
+
+  redis.setBoolean(gameKey(room, 'running'), true) // set running to true
+
+  let { player1, player2 } = await getPlayers(redis, room)
+
+  // tell players if they are player1 or player2
+  io.to(player1).emit("info", { playerNum: 1 });
+  io.to(player2).emit("info", { playerNum: 2 });
+
+  // set there status's respectively
+  io.to(player1).emit("status", 1);
+  io.to(player2).emit("status", 2);
+
+  let board = await redis.getJSON(gameKey(room, 'board'))
+  io.to(room).emit("board", board);
+
+}
+
+async function addCoin(redis, io, room, id, y) {
+
+  let isRunning = await redis.getBoolean(gameKey(room, 'running'))
+
+  if (isRunning) {
+
+    let { player1, player2 } = await getPlayers(redis, room)
+    let current_player = await redis.getAsync(gameKey(room, 'current_player'))
+
+    let isPlayer = id === player1 || id === player2;
+    let isThereCurrentTurn = current_player === id;
+
+    if (isPlayer && isThereCurrentTurn) {
+
+      let placed = false;
+
+      let board = await redis.getJSON(gameKey(room, 'board'))
+
+      for (let TryX = 6; TryX >= 0; TryX--) {
+        if (board[TryX][y] === 0) {
+          board[TryX][y] = id === player1 ? 1 : 2;
+          placed = true;
+          io.to(room).emit("board", board);
+          redis.setJSON(gameKey(room, 'board'), board) // update board
+          TryX = 0; // exit out of loop
+        }
+      }
+
+      if (isHorizontalWin(board) || isDiagonalWin(board) || isVerticalWin(board)) {
+        win(redis, io, room, player1, player2, current_player);
+      } else if (isGameADraw(board)) {
+        win(redis, io, room, player1, player2, current_player, true);
+      } else if (placed) {
+        io.to(current_player).emit("status", 4);
+
+        let new_player = id === player1 ? player2 : player1
+
+        redis.setAsync(gameKey(room, 'current_player'), new_player);
+
+        io.to(new_player).emit("status", 1);
+      }
+
+    }
+  }
+}
+
+async function win(redis, io, room, player1, player2, current_player, draw) {
+
+  redis.setBoolean(gameKey(room, 'running'), false) // set running to false
+
+  redis.incr("gamesPlayed") // add 1 to number of games played
+
+  if (draw) {
+    // tell room the game is a draw
+    io.to(room).emit("status", 5);
+
+  } else {
+    let Winner = current_player
+    let Loser = current_player === player1 ? player2 : player1;
+
+    io.to(Winner).emit("status", 6);
+    io.to(Loser).emit("status", 7);
+  }
+
+}
+
+async function getPlayers(redis, room) {
+  let player1 = await getPlayer1(redis, room)
+  let player2 = await getPlayer2(redis, room)
+
+  return { player1, player2 }
+}
+
+async function getPlayer1(redis, room) {
+  return await redis.getAsync(gameKey(room, 'player1'))
+}
+
+async function getPlayer2(redis, room) {
+  return await redis.getAsync(gameKey(room, 'player2'))
+}
+
+exports.addPlayer = addPlayer;
+exports.removePlayer = removePlayer;
+exports.addCoin = addCoin;

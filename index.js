@@ -1,49 +1,107 @@
-const { Game } = require("./Game");
-const app = require('express')();
-const cors = require('cors');
-app.use(cors("connect420.web.app"));
-const helmet = require('helmet')
-app.use(helmet())
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const port = 3001;
+const Game = require("./Game");
+const redis = require('./redis');
+const { io, app } = require('./connection');
+const { gameKey, clientKey } = require("./redisKey");
 
-games = {}
-let numOfAllClients = 0
-let connnectedRightNow = 0
-var inLobby = []
+app.get('/games', async (req, res) => {
 
-app.get('/games', (req, res) => {
-  res.send({ inLobby, numOfAllClients, connnectedRightNow, boards: { ...Object.keys(games).map(key => { return { id: key, players: games[key].clients, player1: games[key].player1, player2: games[key].player2 } }) } })
+  try {
+
+    let ArrayOfClients = await redis.lrangeAsync("clients", 0, -1)
+
+    let clients = await Promise.all(ArrayOfClients.map(async key => {
+
+      try {
+        let room = await redis.getAsync(clientKey(key, 'room'))
+
+        return { key, room, error: null }
+      } catch (error) {
+        console.error(error)
+        return { key, error: JSON.stringify(error) }
+      }
+
+    }))
+
+    let ArrayOfGames = await redis.lrangeAsync("games", 0, -1)
+
+    let games = await Promise.all(ArrayOfGames.map(async key => {
+
+      try {
+        let player1 = await redis.getAsync(gameKey(key, 'player1'))
+        let player2 = await redis.getAsync(gameKey(key, 'player2'))
+        let current_player = await redis.getAsync(gameKey(key, 'current_player'))
+        let board = await redis.getJSON(gameKey(key, 'board'))
+        let running = await redis.getBoolean(gameKey(key, 'running'))
+        let clients = await redis.lrangeAsync(gameKey(key, 'clients'), 0, -1)
+        let exists = await redis.getBoolean(gameKey(key, 'exists'))
+
+        return { key, player1, player2, current_player, board, running, clients, exists, error: null }
+      } catch (error) {
+        console.error(error)
+        return { key, error: JSON.stringify(error) }
+      }
+
+    }))
+
+    res.json({
+      error: null,
+      inLobby: await redis.lrangeAsync("inLobby", 0, -1),
+      numOfAllClients: await redis.getAsync("numOfAllClients"),
+      connnectedRightNow: await redis.getAsync("connnectedRightNow"),
+      gamesPlayed: await redis.getAsync("gamesPlayed"),
+      ArrayOfGames,
+      games,
+      ArrayOfClients,
+      clients,
+    })
+
+  } catch (error) {
+
+    console.error(error)
+    res.json({ error: JSON.stringify(error) })
+
+  }
+
 })
 
-io.on("connection", socket => {
+io.on("connection", async socket => {
   console.log("connection", socket.id)
-  numOfAllClients += 1
-  connnectedRightNow += 1
 
-  socket.on("room", room => {
+  redis.incr("numOfAllClients")
+  redis.incr("connnectedRightNow")
+
+  redis.rpush("clients", socket.id)
+
+  socket.on("room", async room => {
 
     if (room === "findingAGame") {
-      socket.emit("status", "Looking for a match!")
-      inLobby.push(socket.id)
+      socket.emit("status", 9)
+      redis.rpush("inLobby", socket.id)
 
-      if (inLobby.length >= 2) {
+      let lenOfLobby = await redis.llenAsync("inLobby")
+
+      if (lenOfLobby >= 2) {
         let room = Math.random().toString(36).substr(2, 5);
-        io.to(inLobby[0]).emit('setRoom', room)
-        inLobby.shift()
-        io.to(inLobby[0]).emit('setRoom', room)
-        inLobby.shift()
+
+        let player1 = await redis.lpopAsync("inLobby")
+        io.to(player1).emit('setRoom', room)
+
+        let player2 = await redis.lpopAsync("inLobby")
+        io.to(player2).emit('setRoom', room)
+
       }
     } else if (room) {
 
-      if (!games[room]) {
-        games[room] = new Game(io, room)
+      let exists = await redis.getBoolean(gameKey(room, 'exists'))
+
+      if (!exists) {
+        redis.setBoolean(gameKey(room, 'exists'), true)
+        redis.rpush("games", room)
       }
 
       socket.join(room, (err) => { if (err) { console.error } });
 
-      games[room].addPlayer(socket.id)
+      Game.addPlayer(redis, io, room, socket.id)
 
       console.log(`${socket.id} is connecting to ${room}`)
 
@@ -51,41 +109,36 @@ io.on("connection", socket => {
 
   })
 
-  socket.on('addCoin', ({ y }) => {
+  socket.on('addCoin', async ({ y }) => {
 
-    let roomID = getRoom(socket)
-    if (games[roomID]) {
-      games[roomID].addCoin(socket.id, y)
+    let room = await redis.getAsync(clientKey(socket.id, 'room')) // get room of player
+
+    if (room) {
+      Game.addCoin(redis, io, room, socket.id, y)
     }
 
 
   });
 
-  socket.on("disconnect", () => {
-    connnectedRightNow -= 1
-    Object.keys(games).forEach(index => games[index].removePlayer(socket.id))
-    if (inLobby.includes(socket.id)) {
-      inLobby = arrayRemove(inLobby, socket.id)
-    }
+  socket.on("disconnect", async () => {
+    redis.decr("connnectedRightNow")
+
+    redis.lremAsync("inLobby", 1, socket.id) // remove id from lobby (they probably arnt in the lobby though)
+    redis.lremAsync("clients", 1, socket.id) // remove id from array of clients
+
+    Game.removePlayer(redis, io, socket.id)
+
     console.log("disconnection", socket.id)
   })
 })
 
-http.listen(port, () => {
-  console.log('listening on ' + port);
+process.on('SIGINT', async () => {
+  try {
+    await io.closeAsync()
+    await redis.quitAsync()
+    console.log('goodbye 👋')
+    process.exit(0);
+  } catch (error) {
+    process.exit(1);
+  }
 });
-
-function getRoom(socket) {
-  let { rooms } = socket
-  delete rooms[socket.id]
-  return Object.keys(rooms)[0]
-}
-
-function arrayRemove(arr, value) {
-
-  // from https://love2dev.com/blog/javascript-remove-from-array/
-
-  return arr.filter(function (ele) {
-    return ele != value;
-  });
-}
