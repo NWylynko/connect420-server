@@ -104,7 +104,7 @@ io.on("connection", async socket => {
 
       socket.join(room, (err) => { if (err) { console.error } });
 
-      Game.addPlayer(redis, io, room, socket.id)
+      Game.addPlayer(room, socket.id)
 
       console.log(`${socket.id} is connecting to ${room}`)
 
@@ -117,7 +117,7 @@ io.on("connection", async socket => {
     let room = await redis.getAsync(clientKey(socket.id, 'room')) // get room of player
 
     if (room) {
-      Game.addCoin(redis, io, room, socket.id, y)
+      Game.addCoin(room, socket.id, y)
     }
 
 
@@ -129,7 +129,7 @@ io.on("connection", async socket => {
     redis.lremAsync("inLobby", 1, socket.id) // remove id from lobby (they probably arnt in the lobby though)
     redis.lremAsync("clients", 1, socket.id) // remove id from array of clients
 
-    Game.removePlayer(redis, io, socket.id)
+    Game.removePlayer(socket.id)
 
     console.log("disconnection", socket.id)
   })
