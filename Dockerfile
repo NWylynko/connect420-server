@@ -2,7 +2,7 @@ FROM node:13
 
 WORKDIR /var/www/app
 
-COPY package.json ./
+COPY package.json yarn.lock ./
 RUN yarn
 
 COPY . .
