@@ -3,6 +3,9 @@ const redis = require('./redis');
 const { io, app } = require('./connection');
 const { gameKey, clientKey } = require("./redisKey");
 
+console.log('starting connect420 server')
+console.log(Date())
+
 app.get('/games', async (req, res) => {
 
   try {
