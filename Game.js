@@ -23,6 +23,7 @@ async function addPlayer(redis, io, room, id) {
   }
   else { // if a third client joins they are just going to watch
     io.to(id).emit("status", 3);
+    io.to(id).emit("info", { type: 'viewer' });
     let board = await redis.getJSON(gameKey(room, 'board'))
     io.to(id).emit("board", board);
   }
@@ -87,8 +88,8 @@ async function start(redis, io, room) {
   let { player1, player2 } = await getPlayers(redis, room)
 
   // tell players if they are player1 or player2
-  io.to(player1).emit("info", { playerNum: 1 });
-  io.to(player2).emit("info", { playerNum: 2 });
+  io.to(player1).emit("info", { type: 'player1' });
+  io.to(player2).emit("info", { type: 'player2' });
 
   // set there status's respectively
   io.to(player1).emit("status", 1);
