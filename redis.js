@@ -47,6 +47,26 @@ client.getBoolean = (key) => {
   return client.getAsync(key).then(bool => bool === 'true' ? true : false)
 }
 
+client.hgetAsync = promisify(client.hget).bind(client);
+client.hgetallAsync = promisify(client.hgetall).bind(client);
+client.hmsetAsync = promisify(client.hmset).bind(client);
+
+client.hsetJSON = (hash, key, data) => {
+  return client.hmsetAsync(hash, key, JSON.stringify(data))
+}
+
+client.hgetJSON = (hash, key) => {
+  return client.hgetAsync(hash, key).then(JSON.parse)
+}
+
+client.hsetBoolean = (hash, key, bool) => {
+  return client.hmsetAsync(hash, key, bool ? 'true' : 'false')
+}
+
+client.hgetBoolean = (hash, key) => {
+  return client.hgetAsync(hash, key).then(bool => bool === 'true' ? true : false)
+}
+
 client.lrangeAsync = promisify(client.lrange).bind(client);
 client.lremAsync = promisify(client.lrem).bind(client)
 client.lpopAsync = promisify(client.lpop).bind(client)

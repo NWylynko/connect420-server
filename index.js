@@ -1,7 +1,7 @@
 const Game = require("./Game");
 const redis = require('./redis');
 const { io, app } = require('./connection');
-const { gameKey, clientKey } = require("./redisKey");
+const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
 
 console.log('🏃 starting connect420 server')
 console.log('⏰', Date())
@@ -15,10 +15,9 @@ app.get('/games', async (req, res) => {
     let clients = await Promise.all(ArrayOfClients.map(async key => {
 
       try {
-        let room = await redis.getAsync(clientKey(key, 'room'))
-        let ip = await redis.getAsync(clientKey(key, 'ip'))
+        let client = await redis.hgetallAsync(clientHash(key))
 
-        return { key, room, ip, error: null }
+        return { key, ...client, error: null }
       } catch (error) {
         console.error(error)
         return { key, error: JSON.stringify(error) }
@@ -31,15 +30,10 @@ app.get('/games', async (req, res) => {
     let games = await Promise.all(ArrayOfGames.map(async key => {
 
       try {
-        let player1 = await redis.getAsync(gameKey(key, 'player1'))
-        let player2 = await redis.getAsync(gameKey(key, 'player2'))
-        let current_player = await redis.getAsync(gameKey(key, 'current_player'))
-        let board = await redis.getJSON(gameKey(key, 'board'))
-        let running = await redis.getBoolean(gameKey(key, 'running'))
         let clients = await redis.lrangeAsync(gameKey(key, 'clients'), 0, -1)
-        let exists = await redis.getBoolean(gameKey(key, 'exists'))
+        let game = await redis.hgetallAsync(gameHash(key))
 
-        return { key, player1, player2, current_player, board, running, clients, exists, error: null }
+        return { key, ...game, clients, error: null }
       } catch (error) {
         console.error(error)
         return { key, error: JSON.stringify(error) }
@@ -78,7 +72,7 @@ io.on("connection", async socket => {
   redis.incr("connnectedRightNow")
 
   redis.rpush("clients", socket.id)
-  redis.setAsync(clientKey(socket.id, 'ip'), ip)
+  redis.hmsetAsync(clientHash(socket.id), 'ip', ip)
 
   socket.on("room", async room => {
 
@@ -100,10 +94,11 @@ io.on("connection", async socket => {
       }
     } else if (room) {
 
-      let exists = await redis.getBoolean(gameKey(room, 'exists'))
+      let exists = await redis.hgetBoolean(gameHash(room), 'exists')
 
       if (!exists) {
-        redis.setBoolean(gameKey(room, 'exists'), true)
+        redis.hsetBoolean(gameHash(room), 'exists', true)
+
         redis.rpush("games", room)
       }
 
@@ -118,8 +113,7 @@ io.on("connection", async socket => {
   })
 
   socket.on('addCoin', async ({ y }) => {
-
-    let room = await redis.getAsync(clientKey(socket.id, 'room')) // get room of player
+    let room = await redis.hgetAsync(clientHash(socket.id), 'room') // get room of player
 
     if (room) {
       Game.addCoin(room, socket.id, y)
