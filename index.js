@@ -106,7 +106,7 @@ io.on("connection", async socket => {
 
       Game.addPlayer(room, socket.id)
 
-      console.log(`${socket.id} is connecting to ${room}`)
+      console.log(`-> ${socket.id} is in ${room}`)
 
     }
 
