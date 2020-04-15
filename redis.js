@@ -5,27 +5,27 @@ const redis = require('redis');
 const client = redis.createClient(process.env.REDIS_URL ? process.env.REDIS_URL : REDISCONFIG);
 
 client.on("ready", () => {
-  console.log('redis is ready')
+  console.log('✔️ redis is ready')
 })
 
 client.on('connect', () => {
-  console.log('connected to redis');
+  console.log('✔️ connected to redis');
 });
 
 client.on("reconnecting", (delay, attempt) => {
-  console.log('redis is reconnecting', { delay, attempt })
+  console.log('♻️ redis is reconnecting', { delay, attempt })
 })
 
 client.on("error", (error) => {
-  console.log('redis has an error', error)
+  console.log('❗️ redis has an error: ', error)
 })
 
-client.on("end", (end) => {
-  console.log('redis has been closed', end)
+client.on("end", () => {
+  console.log('❌ redis has been closed')
 })
 
 client.on("warning", (error) => {
-  console.log('redis has a warning', warning)
+  console.log('🚨 redis has a warning: ', warning)
 })
 
 client.getAsync = promisify(client.get).bind(client);

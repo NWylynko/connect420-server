@@ -18,7 +18,7 @@ io.adapter(redis(process.env.REDIS_URL ? process.env.REDIS_URL : REDISCONFIG))
 let port = 3001;
 
 http.listen(port, () => {
-  console.log('listening on', port)
+  console.log('👂 listening on', port)
 });
 
 io.closeAsync = promisify(io.close).bind(io)

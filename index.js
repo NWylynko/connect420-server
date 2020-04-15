@@ -3,8 +3,8 @@ const redis = require('./redis');
 const { io, app } = require('./connection');
 const { gameKey, clientKey } = require("./redisKey");
 
-console.log('starting connect420 server')
-console.log(Date())
+console.log('🏃 starting connect420 server')
+console.log('⏰', Date())
 
 app.get('/games', async (req, res) => {
 
@@ -72,7 +72,7 @@ io.on("connection", async socket => {
   // ip code from https://stackoverflow.com/questions/6458083/get-the-clients-ip-address-in-socket-io
   const ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress.split(":")[3];
 
-  console.log("connection", socket.id, ip)
+  console.log("+", socket.id, ip)
 
   redis.incr("numOfAllClients")
   redis.incr("connnectedRightNow")
@@ -136,7 +136,7 @@ io.on("connection", async socket => {
 
     Game.removePlayer(socket.id)
 
-    console.log("disconnection", socket.id, ip)
+    console.log("-", socket.id, ip)
   })
 })
 
