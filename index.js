@@ -16,8 +16,9 @@ app.get('/games', async (req, res) => {
 
       try {
         let room = await redis.getAsync(clientKey(key, 'room'))
+        let ip = await redis.getAsync(clientKey(key, 'ip'))
 
-        return { key, room, error: null }
+        return { key, room, ip, error: null }
       } catch (error) {
         console.error(error)
         return { key, error: JSON.stringify(error) }
@@ -68,12 +69,16 @@ app.get('/games', async (req, res) => {
 })
 
 io.on("connection", async socket => {
-  console.log("connection", socket.id)
+  // ip code from https://stackoverflow.com/questions/6458083/get-the-clients-ip-address-in-socket-io
+  const ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress.split(":")[3];
+
+  console.log("connection", socket.id, ip)
 
   redis.incr("numOfAllClients")
   redis.incr("connnectedRightNow")
 
   redis.rpush("clients", socket.id)
+  redis.setAsync(clientKey(socket.id, 'ip'), ip)
 
   socket.on("room", async room => {
 
@@ -131,7 +136,7 @@ io.on("connection", async socket => {
 
     Game.removePlayer(socket.id)
 
-    console.log("disconnection", socket.id)
+    console.log("disconnection", socket.id, ip)
   })
 })
 
