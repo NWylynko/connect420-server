@@ -71,7 +71,23 @@ client.lrangeAsync = promisify(client.lrange).bind(client);
 client.lremAsync = promisify(client.lrem).bind(client)
 client.lpopAsync = promisify(client.lpop).bind(client)
 client.llenAsync = promisify(client.llen).bind(client)
+
+client.zincrbyAsync = promisify(client.zincrby).bind(client)
+client.zrevrangeAsync = promisify(client.zrevrange).bind(client)
+
 client.keysAsync = promisify(client.keys).bind(client)
 client.quitAsync = promisify(client.quit).bind(client)
+
+client.getLeaderBoard = async () => {
+  let _leaderboard = await client.zrevrangeAsync('leaderboard', 0, 9, "WITHSCORES")
+
+  let leaderboard = []
+
+  for (i = 0; i < _leaderboard.length; i = i + 2) {
+    leaderboard.push({ name: _leaderboard[i], score: _leaderboard[i + 1] });
+  }
+
+  return leaderboard
+}
 
 module.exports = client

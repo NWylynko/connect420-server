@@ -2,9 +2,19 @@ const Game = require("./Game");
 const redis = require('./redis');
 const { io, app } = require('./connection');
 const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
+const package = require('./package.json')
 
 console.log('🏃 starting connect420 server')
 console.log('⏰', Date())
+
+app.get('/version', async (req, res) => {
+  let { version } = package
+  res.json({version})
+})
+
+app.get('/leaderboard', async (req, res) => {
+  res.json(await redis.getLeaderBoard())
+})
 
 app.get('/games', async (req, res) => {
 
@@ -51,6 +61,7 @@ app.get('/games', async (req, res) => {
       games,
       ArrayOfClients,
       clients,
+      leaderboard: await redis.getLeaderBoard()
     })
 
   } catch (error) {
@@ -73,6 +84,12 @@ io.on("connection", async socket => {
 
   redis.rpush("clients", socket.id)
   redis.hmsetAsync(clientHash(socket.id), 'ip', ip)
+
+  socket.on("name", async name => {
+    if (name) {
+      redis.hmsetAsync(clientHash(socket.id), 'name', name)
+    }
+  })
 
   socket.on("room", async room => {
 

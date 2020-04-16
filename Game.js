@@ -158,6 +158,10 @@ async function win(room, player1, player2, current_player, draw) {
 
     io.to(Winner).emit("status", 6);
     io.to(Loser).emit("status", 7);
+
+    let WinnerName = await redis.hgetAsync(clientHash(Winner), 'name')
+
+    redis.zincrbyAsync("leaderboard", 1, WinnerName)
   }
 
 }
