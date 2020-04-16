@@ -64,7 +64,7 @@ app.get('/games', async (req, res) => {
 
 io.on("connection", async socket => {
   // ip code from https://stackoverflow.com/questions/6458083/get-the-clients-ip-address-in-socket-io
-  const ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress.split(":")[3];
+  const ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress.split(":")[3] || "unknown";
 
   console.log("+", socket.id, ip)
 
