@@ -161,7 +161,10 @@ async function win(room, player1, player2, current_player, draw) {
 
     let WinnerName = await redis.hgetAsync(clientHash(Winner), 'name')
 
-    redis.zincrbyAsync("leaderboard", 1, WinnerName)
+    if (WinnerName) {
+      redis.zincrbyAsync("leaderboard", 1, WinnerName)
+    }
+    
   }
 
 }
