@@ -84,7 +84,7 @@ client.getLeaderBoard = async () => {
   let leaderboard = []
 
   for (i = 0; i < _leaderboard.length; i = i + 2) {
-    leaderboard.push({ name: _leaderboard[i], score: _leaderboard[i + 1] });
+    leaderboard.push({ id: i, name: _leaderboard[i], score: _leaderboard[i + 1] });
   }
 
   return leaderboard
