@@ -2,14 +2,15 @@ const Game = require("./Game");
 const redis = require('./redis');
 const { io, app } = require('./connection');
 const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
-const package = require('./package.json')
+const package = require('./package.json');
+var validator = require('validator');
 
 console.log('🏃 starting connect420 server')
 console.log('⏰', Date())
 
 app.get('/version', async (req, res) => {
   let { version } = package
-  res.json({version})
+  res.json({ version })
 })
 
 app.get('/leaderboard', async (req, res) => {
@@ -74,7 +75,7 @@ app.get('/games', async (req, res) => {
 })
 
 io.on("connection", async socket => {
-  // ip code from https://stackoverflow.com/questions/6458083/get-the-clients-ip-address-in-socket-io
+  // ip code modified from https://stackoverflow.com/a/59020843
   const ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress.split(":")[3] || "unknown";
 
   console.log("+", socket.id, ip)
@@ -85,57 +86,91 @@ io.on("connection", async socket => {
   redis.rpush("clients", socket.id)
   redis.hmsetAsync(clientHash(socket.id), 'ip', ip)
 
-  socket.on("name", async name => {
-    if (name) {
-      redis.hmsetAsync(clientHash(socket.id), 'name', name)
+  socket.on("name", async unsafe_name => {
+
+    try {
+      let name = validator.escape(unsafe_name)
+
+      if (
+        !(validator.isEmpty(name)) && // cant be empty
+        validator.isLength(name, { max: 16 }) // cant be over 16 chars
+      ) {
+        redis.hmsetAsync(clientHash(socket.id), 'name', name)
+      }
+    } catch (error) {
+      console.warn(socket.id, ip, 'error:\n', error)
     }
+
   })
 
-  socket.on("room", async room => {
+  socket.on("room", async unsafe_room => {
 
-    if (room === "findingAGame") {
-      socket.emit("status", 9)
-      redis.rpush("inLobby", socket.id)
+    try {
+      let room = validator.escape(unsafe_room)
 
-      let lenOfLobby = await redis.llenAsync("inLobby")
+      if (
+        !(validator.isEmpty(room)) && // cant be empty
+        validator.isLength(room, { max: 12 }) // cant be over 12 chars
+      ) {
 
-      if (lenOfLobby >= 2) {
-        let room = Math.random().toString(36).substr(2, 5);
+        if (room === "findingAGame") {
+          socket.emit("status", 9)
+          redis.rpush("inLobby", socket.id)
 
-        let player1 = await redis.lpopAsync("inLobby")
-        io.to(player1).emit('setRoom', room)
+          let lenOfLobby = await redis.llenAsync("inLobby")
 
-        let player2 = await redis.lpopAsync("inLobby")
-        io.to(player2).emit('setRoom', room)
+          if (lenOfLobby >= 2) {
+            let room = Math.random().toString(36).substr(2, 5);
+
+            let player1 = await redis.lpopAsync("inLobby")
+            io.to(player1).emit('setRoom', room)
+
+            let player2 = await redis.lpopAsync("inLobby")
+            io.to(player2).emit('setRoom', room)
+
+          }
+        } else if (room) {
+
+          let exists = await redis.hgetBoolean(gameHash(room), 'exists')
+
+          if (!exists) {
+            redis.hsetBoolean(gameHash(room), 'exists', true)
+
+            redis.rpush("games", room)
+          }
+
+          socket.join(room, (err) => { if (err) { console.error } });
+
+          Game.addPlayer(room, socket.id)
+
+          console.log(`-> ${socket.id} is in ${room}`)
+
+        }
 
       }
-    } else if (room) {
-
-      let exists = await redis.hgetBoolean(gameHash(room), 'exists')
-
-      if (!exists) {
-        redis.hsetBoolean(gameHash(room), 'exists', true)
-
-        redis.rpush("games", room)
-      }
-
-      socket.join(room, (err) => { if (err) { console.error } });
-
-      Game.addPlayer(room, socket.id)
-
-      console.log(`-> ${socket.id} is in ${room}`)
-
+    } catch (error) {
+      console.warn(socket.id, ip, 'error:\n', error)
     }
 
   })
 
   socket.on('addCoin', async ({ y }) => {
-    let room = await redis.hgetAsync(clientHash(socket.id), 'room') // get room of player
 
-    if (room) {
-      Game.addCoin(room, socket.id, y)
+    try {
+
+      if (validator.isInt(y.toString(), { min: 0, max: 6 })) {
+
+        let room = await redis.hgetAsync(clientHash(socket.id), 'room') // get room of player
+
+        if (room) {
+          Game.addCoin(room, socket.id, y)
+        }
+
+      }
+      
+    } catch (error) {
+      console.warn(socket.id, ip, 'error:\n', error)
     }
-
 
   });
 
