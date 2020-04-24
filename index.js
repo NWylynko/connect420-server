@@ -2,14 +2,13 @@ const Game = require("./Game");
 const redis = require('./redis');
 const { io, app } = require('./connection');
 const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
-const package = require('./package.json');
+const { version } = require('./package.json');
 var validator = require('validator');
 
-console.log('🏃 starting connect420 server')
+console.log('🏃 starting connect420 server || version:', version)
 console.log('⏰', Date())
 
 app.get('/version', async (req, res) => {
-  let { version } = package
   res.json({ version })
 })
 
