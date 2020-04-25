@@ -205,7 +205,7 @@ io.on("connection", async socket => {
   })
 })
 
-process.on('SIGINT', async () => {
+process.on('SIGTERM', async () => {
   try {
     await io.closeAsync()
     await redis.quitAsync()
