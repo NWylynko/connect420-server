@@ -15,6 +15,26 @@ app.get('/version', async (req, res) => {
 app.get('/leaderboard', async (req, res) => {
   res.json(await redis.getLeaderBoard())
 })
+app.get('/stats', async (req, res) => {
+
+  try {
+
+    res.json({
+      error: null,
+      numInLobby: await redis.llenAsync("inLobby"),
+      numOfAllClients: await redis.getAsync("numOfAllClients"),
+      connnectedRightNow: await redis.getAsync("connnectedRightNow"),
+      gamesPlayed: await redis.getAsync("gamesPlayed"),
+    })
+
+  } catch (error) {
+
+    console.error(error)
+    res.json({ error: JSON.stringify(error) })
+
+  }
+
+})
 
 app.get('/games', async (req, res) => {
 
