@@ -23,7 +23,7 @@ app.get('/stats', async (req, res) => {
       error: null,
       numInLobby: await redis.llenAsync("inLobby"),
       numOfAllClients: await redis.getAsync("numOfAllClients"),
-      connnectedRightNow: await redis.getAsync("connnectedRightNow"),
+      connectedRightNow: await redis.getAsync("connnectedRightNow"),
       gamesPlayed: await redis.getAsync("gamesPlayed"),
     })
 
@@ -75,7 +75,7 @@ app.get('/games', async (req, res) => {
       error: null,
       inLobby: await redis.lrangeAsync("inLobby", 0, -1),
       numOfAllClients: await redis.getAsync("numOfAllClients"),
-      connnectedRightNow: await redis.getAsync("connnectedRightNow"),
+      connectedRightNow: await redis.getAsync("connnectedRightNow"),
       gamesPlayed: await redis.getAsync("gamesPlayed"),
       ArrayOfGames,
       games,
