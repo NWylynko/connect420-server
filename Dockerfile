@@ -1,6 +1,5 @@
 # first stage: build
 FROM node:14-alpine AS builder
-ENV NODE_ENV production
 WORKDIR /var/www/c420-server
 COPY package.json yarn.lock ./
 RUN yarn
