@@ -12,7 +12,7 @@ interface ISocketIOAsync extends SocketIO.Server {
 }
 
 export const app: express.Application = express()
-app.use(cors({ origin: "connect420.web.app"}));
+app.use(cors({ origin: "https://connect420.web.app" }));
 app.use(helmet())
 
 const server: Server = createServer(app);
