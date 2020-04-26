@@ -6,6 +6,8 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2020"],
+    "alwaysStrict": true,
+    "removeComments": true
   },
   "include": [
     "./src/**/*"
