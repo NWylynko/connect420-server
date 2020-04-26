@@ -1,6 +1,6 @@
 import { promisify } from "util";
 
-import { redis_config } from "./redis.config.js"
+import { redis_config } from "./redis.config"
 import redis, { OverloadedCommand } from 'redis';
 
 interface RedisClientAsync extends redis.RedisClient {

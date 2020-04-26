@@ -1,14 +1,15 @@
-import Game from "./Game.js";
-import redis from './redis.js';
-import { io, app } from './connection.js';
-import { gameKey, clientHash, gameHash } from "./redisKey.js";
+require('dotenv').config()
+import Game from "./Game";
+import redis from './redis';
+import { io, app } from './connection';
+import { gameKey, clientHash, gameHash } from "./redisKey";
 import validator from 'validator';
 
 // import interfaces
 import { Request as IRequest, Response as IResponse } from 'express';
 import { Socket as ISocket} from 'socket.io';
 
-console.log('🏃 starting connect420 server || version:', process.env.npm_package_version)
+console.log('🏃 starting connect420 server || version:', process.env.npm_package_version, 'in',  process.env.NODE_ENV, 'mode.')
 console.log('⏰', Date())
 
 app.get('/version', async (req: IRequest, res: IResponse) => {

@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet'
 import { createServer, Server} from 'http';
 import socketIo from 'socket.io';
-import { redis_socketio_config } from "./redis.config.js"
+import { redis_socketio_config } from "./redis.config"
 import redis from 'socket.io-redis'
 
 interface ISocketIOAsync extends SocketIO.Server {
@@ -16,7 +16,7 @@ app.use(cors({ origin: "https://connect420.web.app" }));
 app.use(helmet())
 
 const server: Server = createServer(app);
-export const io: ISocketIOAsync = socketIo(server);
+export const io: ISocketIOAsync = socketIo(server, { serveClient:false });
 
 if (process.env.REDIS_URL) {
   io.adapter(redis(process.env.REDIS_URL))

@@ -1,12 +1,12 @@
-import { gameKey, clientHash, gameHash } from "./redisKey.js";
-import isVerticalWin from "./isVerticalWin.js";
-import isHorizontalWin from "./isHorizontalWin.js";
-import isDiagonalWin from "./isDiagonalWin.js";
-import isGameADraw from "./isGameADraw.js";
-import generateBoard from "./generateBoard.js";
+import { gameKey, clientHash, gameHash } from "./redisKey";
+import isVerticalWin from "./isVerticalWin";
+import isHorizontalWin from "./isHorizontalWin";
+import isDiagonalWin from "./isDiagonalWin";
+import isGameADraw from "./isGameADraw";
+import generateBoard from "./generateBoard";
 
-import redis from './redis.js';
-import { io } from './connection.js';
+import redis from './redis';
+import { io } from './connection';
 
 export async function addPlayer(room: string, id: string) {
 
