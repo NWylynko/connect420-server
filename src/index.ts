@@ -2,7 +2,7 @@ const Game = require("./Game");
 const redis = require('./redis');
 const { io, app } = require('./connection');
 const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
-const { version } = require('./package.json');
+const { version } = require('../package.json');
 var validator = require('validator');
 
 console.log('🏃 starting connect420 server || version:', version)
