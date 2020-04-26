@@ -1,21 +1,34 @@
-const Game = require("./Game");
-const redis = require('./redis');
-const { io, app } = require('./connection');
-const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
-const { version } = require('../package.json');
-var validator = require('validator');
+import Game from "./Game";
+import redis from './redis';
+import { io, app } from './connection';
+import { gameKey, clientHash, gameHash } from "./redisKey";
+import { version } from '../package.json';
+import validator from 'validator';
+
+// import interfaces
+import { Request as IRequest, Response as IResponse } from 'express';
+import { Socket as ISocket} from 'socket.io';
 
 console.log('🏃 starting connect420 server || version:', version)
 console.log('⏰', Date())
 
-app.get('/version', async (req, res) => {
+app.get('/version', async (req: IRequest, res: IResponse) => {
   res.json({ version })
 })
 
-app.get('/leaderboard', async (req, res) => {
-  res.json(await redis.getLeaderBoard())
+app.get('/leaderboard', async (req: IRequest, res: IResponse) => {
+
+  let _leaderboard = await redis.zrevrangeAsync('leaderboard', 0, 9, "WITHSCORES")
+
+  let leaderboard: { id: number, name: string, score: string }[] = []
+
+  for (let i = 0; i < _leaderboard.length; i = i + 2) {
+    leaderboard.push({ id: i, name: _leaderboard[i], score: _leaderboard[i + 1] });
+  }
+
+  res.json(leaderboard)
 })
-app.get('/stats', async (req, res) => {
+app.get('/stats', async (req: IRequest, res: IResponse) => {
 
   try {
 
@@ -36,7 +49,7 @@ app.get('/stats', async (req, res) => {
 
 })
 
-app.get('/games', async (req, res) => {
+app.get('/games', async (req: IRequest, res: IResponse) => {
 
   try {
 
@@ -80,8 +93,7 @@ app.get('/games', async (req, res) => {
       ArrayOfGames,
       games,
       ArrayOfClients,
-      clients,
-      leaderboard: await redis.getLeaderBoard()
+      clients
     })
 
   } catch (error) {
@@ -93,7 +105,7 @@ app.get('/games', async (req, res) => {
 
 })
 
-io.on("connection", async socket => {
+io.on("connection", async (socket: ISocket) => {
   // ip code modified from https://stackoverflow.com/a/59020843
   const ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress.split(":")[3] || "unknown";
 
@@ -105,7 +117,7 @@ io.on("connection", async socket => {
   redis.rpush("clients", socket.id)
   redis.hmsetAsync(clientHash(socket.id), 'ip', ip)
 
-  socket.on("name", async unsafe_name => {
+  socket.on("name", async (unsafe_name: string) => {
 
     try {
       let name = validator.escape(unsafe_name)
@@ -122,7 +134,7 @@ io.on("connection", async socket => {
 
   })
 
-  socket.on("room", async unsafe_room => {
+  socket.on("room", async (unsafe_room: string) => {
 
     try {
       let room = validator.escape(unsafe_room)
@@ -173,7 +185,7 @@ io.on("connection", async socket => {
 
   })
 
-  socket.on('addCoin', async ({ y }) => {
+  socket.on('addCoin', async ({ y } : { y: number | string }) => {
 
     try {
 
@@ -186,7 +198,7 @@ io.on("connection", async socket => {
         }
 
       }
-      
+
     } catch (error) {
       console.warn(socket.id, ip, 'error:\n', error)
     }

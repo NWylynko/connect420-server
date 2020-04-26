@@ -1,6 +1,6 @@
 // adapted from https://github.com/bryanbraun/connect-four/blob/c96898cb34621e5ab3697a05e11895f6d4e6e7a2/js/functions.js
 
-function isHorizontalWin(board) {
+export default function isHorizontalWin(board: number[][]): boolean {
   let currentValue = null, previousValue = 0, tally = 0, maybe = [];
   // Scan each row in series, tallying the length of each series. If a series
   // ever reaches four, return true for a win.
@@ -29,4 +29,3 @@ function isHorizontalWin(board) {
   // No horizontal win was found.
   return false;
 }
-exports.isHorizontalWin = isHorizontalWin;

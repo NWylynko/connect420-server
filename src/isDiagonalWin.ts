@@ -1,21 +1,17 @@
 // adapted from https://github.com/bryanbraun/connect-four/blob/c96898cb34621e5ab3697a05e11895f6d4e6e7a2/js/functions.js
 
-function isDiagonalWin(board) {
-  let x = null,
-    y = null,
-    xtemp = null,
-    ytemp = null,
-    currentValue = null,
-    previousValue = 0,
-    tally = 0;
+export default function isDiagonalWin(board: number[][]): boolean {
+
+  let previousValue = 0
+  let tally = 0
 
   // Test for down-right diagonals across the top.
   for (let x = 0; x <= 6; x++) {
-    xtemp = x;
-    ytemp = 0;
+    let xtemp = x;
+    let ytemp = 0;
 
     while (xtemp <= 6 && ytemp <= 6) {
-      currentValue = board[ytemp][xtemp];
+      let currentValue = board[ytemp][xtemp];
       if (currentValue === previousValue && currentValue !== 0) {
         tally += 1;
       } else {
@@ -38,11 +34,11 @@ function isDiagonalWin(board) {
 
   // Test for down-left diagonals across the top.
   for (let x = 0; x <= 6; x++) {
-    xtemp = x;
-    ytemp = 0;
+    let xtemp = x;
+    let ytemp = 0;
 
     while (0 <= xtemp && ytemp <= 6) {
-      currentValue = board[ytemp][xtemp];
+      let currentValue = board[ytemp][xtemp];
       if (currentValue === previousValue && currentValue !== 0) {
         tally += 1;
       } else {
@@ -64,12 +60,12 @@ function isDiagonalWin(board) {
   }
 
   // Test for down-right diagonals down the left side.
-  for (y = 0; y <= 6; y++) {
-    xtemp = 0;
-    ytemp = y;
+  for (let y = 0; y <= 6; y++) {
+    let xtemp = 0;
+    let ytemp = y;
 
     while (xtemp <= 6 && ytemp <= 6) {
-      currentValue = board[ytemp][xtemp];
+      let currentValue = board[ytemp][xtemp];
       if (currentValue === previousValue && currentValue !== 0) {
         tally += 1;
       } else {
@@ -92,11 +88,11 @@ function isDiagonalWin(board) {
 
   // Test for down-left diagonals down the right side.
   for (let y = 0; y <= 6; y++) {
-    xtemp = 6;
-    ytemp = y;
+    let xtemp = 6;
+    let ytemp = y;
 
     while (0 <= xtemp && ytemp <= 6) {
-      currentValue = board[ytemp][xtemp];
+      let currentValue = board[ytemp][xtemp];
       if (currentValue === previousValue && currentValue !== 0) {
         tally += 1;
       } else {
@@ -120,5 +116,3 @@ function isDiagonalWin(board) {
   // No diagonal wins found. Return false.
   return false;
 }
-
-exports.isDiagonalWin = isDiagonalWin;

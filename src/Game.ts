@@ -1,14 +1,14 @@
-const { gameKey, clientKey, clientHash, gameHash } = require("./redisKey");
-const { isVerticalWin } = require("./isVerticalWin");
-const { isHorizontalWin } = require("./isHorizontalWin");
-const { isDiagonalWin } = require("./isDiagonalWin");
-const { isGameADraw } = require("./isGameADraw");
-const { generateBoard } = require("./generateBoard");
+import { gameKey, clientHash, gameHash } from "./redisKey";
+import isVerticalWin from "./isVerticalWin";
+import isHorizontalWin from "./isHorizontalWin";
+import isDiagonalWin from "./isDiagonalWin";
+import isGameADraw from "./isGameADraw";
+import generateBoard from "./generateBoard";
 
-const redis = require('./redis');
-const { io } = require('./connection');
+import redis from './redis';
+import { io } from './connection';
 
-async function addPlayer(room, id) {
+export async function addPlayer(room: string, id: string) {
 
   redis.rpush(gameKey(room, 'clients'), id) // add socket.id to the array of clients
   redis.hmsetAsync(clientHash(id), 'room', room) // set the clients room to the room id
@@ -32,7 +32,7 @@ async function addPlayer(room, id) {
   }
 }
 
-async function removePlayer(id) {
+export async function removePlayer(id: string) {
 
   let room = await redis.hgetAsync(clientHash(id), 'room') // get room of player
 
@@ -63,11 +63,11 @@ async function removePlayer(id) {
 
 }
 
-async function deleteClientData(id) {
+async function deleteClientData(id: string) {
   redis.del(clientHash(id))
 }
 
-async function deleteGameData(room) {
+async function deleteGameData(room: string) {
   redis.del([
     gameKey(room, 'clients'),
     gameHash(room)
@@ -75,7 +75,7 @@ async function deleteGameData(room) {
   redis.lremAsync("games", 1, room)
 }
 
-async function start(room) {
+async function start(room: string) {
 
   redis.hsetJSON(gameHash(room), 'board', generateBoard(7, 7)) // generate a new board
 
@@ -96,7 +96,7 @@ async function start(room) {
 
 }
 
-async function addCoin(room, id, y) {
+export async function addCoin(room: string, id: string, y: string | number) {
 
   let isRunning = await redis.hgetBoolean(gameHash(room), 'running')
 
@@ -112,7 +112,7 @@ async function addCoin(room, id, y) {
 
       let placed = false;
 
-      let board = await redis.hgetJSON(gameHash(room), 'board')
+      let board: number[][] = await redis.hgetJSON(gameHash(room), 'board')
 
       for (let TryX = 6; TryX >= 0; TryX--) {
         if (board[TryX][y] === 0) {
@@ -142,7 +142,7 @@ async function addCoin(room, id, y) {
   }
 }
 
-async function win(room, player1, player2, current_player, draw) {
+async function win(room: string, player1: string, player2: string, current_player: string, draw?: boolean) {
 
   redis.hsetBoolean(gameHash(room), 'running', false) // set running to false
 
@@ -169,21 +169,21 @@ async function win(room, player1, player2, current_player, draw) {
 
 }
 
-async function getPlayers(room) {
+async function getPlayers(room: string): Promise<{player1: string, player2: string}> {
   let player1 = await getPlayer1(room)
   let player2 = await getPlayer2(room)
 
   return { player1, player2 }
 }
 
-async function getPlayer1(room) {
+async function getPlayer1(room: string): Promise<string> {
   return await redis.hgetAsync(gameHash(room), 'player1')
 }
 
-async function getPlayer2(room) {
+async function getPlayer2(room: string): Promise<string> {
   return await redis.hgetAsync(gameHash(room), 'player2')
 }
 
-exports.addPlayer = addPlayer;
-exports.removePlayer = removePlayer;
-exports.addCoin = addCoin;
+const Game = { addPlayer, removePlayer, addCoin }
+
+export default Game

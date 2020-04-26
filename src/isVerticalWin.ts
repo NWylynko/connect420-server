@@ -1,6 +1,6 @@
 // adapted from https://github.com/bryanbraun/connect-four/blob/c96898cb34621e5ab3697a05e11895f6d4e6e7a2/js/functions.js
 
-function isVerticalWin(board) {
+export default function isVerticalWin(board: number[][]): boolean {
   var currentValue = null, previousValue = 0, tally = 0;
   // Scan each column in series, tallying the length of each series. If a
   // series ever reaches four, return true for a win.
@@ -26,4 +26,3 @@ function isVerticalWin(board) {
   // No vertical win was found.
   return false;
 }
-exports.isVerticalWin = isVerticalWin;

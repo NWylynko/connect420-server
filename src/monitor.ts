@@ -1,6 +1,12 @@
-const redis = require("redis");
-const REDISCONFIG = require("./redis.config")
-const client = redis.createClient(process.env.REDIS_URL ? process.env.REDIS_URL : REDISCONFIG);
+import redis from "redis";
+import { redis_config } from "./redis.config"
+let client: redis.RedisClient;
+
+if (process.env.REDIS_URL) {
+  client = redis.createClient(process.env.REDIS_URL)
+} else {
+  client = redis.createClient(redis_config)
+}
  
 client.monitor((err, res) => {
   console.log("Entering monitoring mode.");

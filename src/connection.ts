@@ -1,27 +1,33 @@
-const { promisify } = require("util");
+import { promisify } from "util";
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet'
+import { createServer, Server} from 'http';
+import socketIo from 'socket.io';
+import { redis_socketio_config } from "./redis.config"
+import redis, { SocketIORedisOptions } from 'socket.io-redis'
 
-const app = require('express')();
+interface ISocketIOAsync extends SocketIO.Server {
+  closeAsync?: () => Promise<void>;
+}
 
-const cors = require('cors');
-app.use(cors("connect420.web.app"));
-
-const helmet = require('helmet')
+export const app: express.Application = express()
+app.use(cors({ origin: "connect420.web.app"}));
 app.use(helmet())
 
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const server: Server = createServer(app);
+export const io: ISocketIOAsync = socketIo(server);
 
-const REDISCONFIG = require("./redis.config")
-const redis = require('socket.io-redis')
-io.adapter(redis(process.env.REDIS_URL ? process.env.REDIS_URL : REDISCONFIG))
+if (process.env.REDIS_URL) {
+  io.adapter(redis(process.env.REDIS_URL))
+} else {
+  io.adapter(redis(redis_socketio_config))
+}
 
-let port = 3001;
+let port: string | number = process.env.PORT || 3001;
 
-http.listen(port, () => {
+server.listen(port, () => {
   console.log('👂 listening on', port)
 });
 
 io.closeAsync = promisify(io.close).bind(io)
-
-exports.io = io
-exports.app = app
