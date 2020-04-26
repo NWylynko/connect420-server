@@ -1,10 +1,10 @@
 {
   "name": "connect420-server",
-  "version": "1.2.0",
-  "main": "index.js",
+  "version": "1.3.0",
+  "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node build/src/index.js",
+    "start": "node build/index.js",
     "build": "tsc"
   },
   "dependencies": {
@@ -24,5 +24,6 @@
     "socket.io-redis": "^5.2.0",
     "typescript": "^3.8.3",
     "validator": "^13.0.0"
-  }
+  },
+  "type": "module"
 }

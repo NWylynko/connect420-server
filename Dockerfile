@@ -7,6 +7,8 @@ RUN yarn
 
 COPY . .
 
-CMD node index.js
+RUN yarn build
+
+CMD yarn start
 
 EXPOSE 3001

@@ -4,8 +4,8 @@ import cors from 'cors';
 import helmet from 'helmet'
 import { createServer, Server} from 'http';
 import socketIo from 'socket.io';
-import { redis_socketio_config } from "./redis.config"
-import redis, { SocketIORedisOptions } from 'socket.io-redis'
+import { redis_socketio_config } from "./redis.config.js"
+import redis from 'socket.io-redis'
 
 interface ISocketIOAsync extends SocketIO.Server {
   closeAsync?: () => Promise<void>;

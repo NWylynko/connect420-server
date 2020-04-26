@@ -1,5 +1,5 @@
 import redis from "redis";
-import { redis_config } from "./redis.config"
+import { redis_config } from "./redis.config.js"
 let client: redis.RedisClient;
 
 if (process.env.REDIS_URL) {

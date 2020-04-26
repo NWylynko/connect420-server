@@ -1,19 +1,18 @@
-import Game from "./Game";
-import redis from './redis';
-import { io, app } from './connection';
-import { gameKey, clientHash, gameHash } from "./redisKey";
-import { version } from '../package.json';
+import Game from "./Game.js";
+import redis from './redis.js';
+import { io, app } from './connection.js';
+import { gameKey, clientHash, gameHash } from "./redisKey.js";
 import validator from 'validator';
 
 // import interfaces
 import { Request as IRequest, Response as IResponse } from 'express';
 import { Socket as ISocket} from 'socket.io';
 
-console.log('🏃 starting connect420 server || version:', version)
+console.log('🏃 starting connect420 server || version:', process.env.npm_package_version)
 console.log('⏰', Date())
 
 app.get('/version', async (req: IRequest, res: IResponse) => {
-  res.json({ version })
+  res.json({version: process.env.npm_package_version})
 })
 
 app.get('/leaderboard', async (req: IRequest, res: IResponse) => {
