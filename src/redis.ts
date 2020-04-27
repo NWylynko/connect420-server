@@ -26,7 +26,7 @@ interface RedisClientAsync extends redis.RedisClient {
   setJSON?: (key: string, data: object) => Promise<"OK">,
 }
 
-let client: RedisClientAsync = redis.createClient(process.env.REDIS_URL)
+let client: RedisClientAsync = redis.createClient(process.env.REDIS_URL || 'redis://localhost:6379')
 
 client.on("ready", () => {
   console.log('✔️ redis is ready')

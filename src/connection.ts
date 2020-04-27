@@ -17,7 +17,7 @@ app.use(helmet())
 const server: Server = createServer(app);
 export const io: ISocketIOAsync = socketIo(server);
 
-io.adapter(redis(process.env.REDIS_URL))
+io.adapter(redis(process.env.REDIS_URL || 'redis://localhost:6379'))
 
 let port: string | number = process.env.PORT || 3001;
 
