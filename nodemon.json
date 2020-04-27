@@ -2,6 +2,9 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "rm -r build; yarn build && yarn start",
-  "signal": "SIGTERM"
+  "exec": "yarn build && yarn start",
+  "signal": "SIGTERM",
+  "env": {
+    "NODE_ENV": "development"
+  }
 }

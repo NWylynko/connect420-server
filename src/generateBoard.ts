@@ -1,10 +1,10 @@
 export default function generateBoard(_x: number, _y: number): number[][] {
-  let start: number[][] = [];
+  let board: number[][] = [];
   for (let x = 0; x < _x; x++) {
-    start.push([]);
+    board.push([]);
     for (let y = 0; y < _y; y++) {
-      start[x].push(0);
+      board[x].push(0);
     }
   }
-  return start;
+  return board;
 }

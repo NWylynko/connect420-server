@@ -1,8 +1,8 @@
 import { gameKey, clientHash, gameHash } from "./redisKey.js";
-import isVerticalWin from "./isVerticalWin.js";
-import isHorizontalWin from "./isHorizontalWin.js";
-import isDiagonalWin from "./isDiagonalWin.js";
-import isGameADraw from "./isGameADraw.js";
+import isVerticalWin from "./win/isVerticalWin.js";
+import isHorizontalWin from "./win/isHorizontalWin.js";
+import isDiagonalWin from "./win/isDiagonalWin.js";
+import isGameADraw from "./win/isGameADraw.js";
 import generateBoard from "./generateBoard.js";
 
 import redis from './redis.js';
