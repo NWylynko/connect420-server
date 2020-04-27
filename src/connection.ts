@@ -4,7 +4,6 @@ import cors from 'cors';
 import helmet from 'helmet'
 import { createServer, Server} from 'http';
 import socketIo from 'socket.io';
-import { redis_socketio_config } from "./redis.config.js"
 import redis from 'socket.io-redis'
 
 interface ISocketIOAsync extends SocketIO.Server {
@@ -18,11 +17,7 @@ app.use(helmet())
 const server: Server = createServer(app);
 export const io: ISocketIOAsync = socketIo(server);
 
-if (process.env.REDIS_URL) {
-  io.adapter(redis(process.env.REDIS_URL))
-} else {
-  io.adapter(redis(redis_socketio_config))
-}
+io.adapter(redis(process.env.REDIS_URL))
 
 let port: string | number = process.env.PORT || 3001;
 

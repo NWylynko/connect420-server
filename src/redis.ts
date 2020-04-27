@@ -1,7 +1,6 @@
 import { promisify } from "util";
 
-import { redis_config } from "./redis.config.js"
-import redis, { OverloadedCommand } from 'redis';
+import redis from 'redis';
 
 interface RedisClientAsync extends redis.RedisClient {
   setBoolean?: (key: string, bool: boolean) => Promise<"OK">,
@@ -27,13 +26,7 @@ interface RedisClientAsync extends redis.RedisClient {
   setJSON?: (key: string, data: object) => Promise<"OK">,
 }
 
-let client: RedisClientAsync;
-
-if (process.env.REDIS_URL) {
-  client = redis.createClient(process.env.REDIS_URL)
-} else {
-  client = redis.createClient(redis_config)
-}
+let client: RedisClientAsync = redis.createClient(process.env.REDIS_URL)
 
 client.on("ready", () => {
   console.log('✔️ redis is ready')
