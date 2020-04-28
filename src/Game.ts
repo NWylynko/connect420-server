@@ -1,9 +1,6 @@
 import { gameKey, clientHash, gameHash } from "./redisKey.js";
-import isVerticalWin from "./win/isVerticalWin.js";
-import isHorizontalWin from "./win/isHorizontalWin.js";
-import isDiagonalWin from "./win/isDiagonalWin.js";
-import isGameADraw from "./win/isGameADraw.js";
-import generateBoard from "./generateBoard.js";
+import isWin from "./win/isWin.js";
+import generateBoard, { convertToBoard } from "./generateBoard.js";
 
 import redis from './redis.js';
 import { io } from './connection.js';
@@ -124,10 +121,16 @@ export async function addCoin(room: string, id: string, y: string | number) {
         }
       }
 
-      if (isHorizontalWin(board) || isDiagonalWin(board) || isVerticalWin(board)) {
-        win(room, player1, player2, current_player);
-      } else if (isGameADraw(board)) {
-        win(room, player1, player2, current_player, true);
+      let gameState = isWin(board);
+
+      if (gameState.win) {
+        if (gameState.draw) {
+          win(room, player1, player2, current_player, true);
+        } else {
+          console.log(gameState.winners)
+          io.to(room).emit("highlights", convertToBoard(7, 7, gameState.winners))
+          win(room, player1, player2, current_player);
+        }
       } else if (placed) {
         io.to(current_player).emit("status", 4);
 
@@ -136,6 +139,8 @@ export async function addCoin(room: string, id: string, y: string | number) {
         redis.hmsetAsync(gameHash(room), 'current_player', new_player);
 
         io.to(new_player).emit("status", 1);
+      } else {
+        console.error('not a win state and no token placed')
       }
 
     }

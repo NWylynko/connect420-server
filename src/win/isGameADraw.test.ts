@@ -13,7 +13,7 @@ describe('isGameADraw', () => {
       [1, 2, 1, 2, 1, 2, 1],
     ]
 
-    expect(isGameADraw(board)).toBe(true)
+    expect(isGameADraw(board)).toStrictEqual({ win: true, winners: [], draw: true })
   })
 
   it('should not be a draw', () => {
@@ -28,7 +28,7 @@ describe('isGameADraw', () => {
       [0, 0, 0, 0, 0, 0, 0],
     ]
 
-    expect(isGameADraw(board)).toBe(false)
+    expect(isGameADraw(board)).toStrictEqual({ win: false, winners: [] })
   })
 
 })
