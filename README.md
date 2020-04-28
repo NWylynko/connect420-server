@@ -65,3 +65,4 @@ services:
 - PORT - default 3001 - tells server what port to listen on for http and ws requests / connections
 - NODE_ENV - either 'production' or 'development' - run the server either in production or development mode
 - REDIS_URL - default redis://localhost:6379 - tells the server where the redis server is running
+- CORS - default http://localhost:3000 - set to the url the client is hosted at otherwise the client wont be able to connect
