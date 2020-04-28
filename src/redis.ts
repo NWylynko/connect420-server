@@ -1,5 +1,5 @@
+import dotenv from "dotenv"; dotenv.config();
 import { promisify } from "util";
-
 import redis from 'redis';
 
 interface RedisClientAsync extends redis.RedisClient {

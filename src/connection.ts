@@ -1,3 +1,4 @@
+import dotenv from "dotenv"; dotenv.config();
 import { promisify } from "util";
 import express from 'express';
 import cors from 'cors';
@@ -11,7 +12,7 @@ interface ISocketIOAsync extends SocketIO.Server {
 }
 
 export const app: express.Application = express()
-app.use(cors({ origin: process.env.NODE_ENV === 'production' ? "https://connect420.web.app" : "http://localhost:3000"}));
+app.use(cors({ origin: process.env.CORS }));
 app.use(helmet())
 
 const server: Server = createServer(app);
