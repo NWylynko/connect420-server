@@ -215,6 +215,50 @@ io.on("connection", async (socket: ISocket) => {
 
   });
 
+  socket.on('message', async ({ message, timestamp } : { message: string, timestamp: number }) => {
+
+    try {
+
+      let msg = validator.escape(message)
+
+      if (!(validator.isEmpty(msg))) {
+
+        let room = await redis.hgetAsync(clientHash(socket.id), 'room') // get room of player
+        let from: "player1" | "player2" | "viewer";
+
+        if (room) {
+          let player1 = await redis.hgetAsync(gameHash(room), 'player1')
+          
+          if (socket.id === player1) {
+            from  = 'player1';
+
+          } else {
+            let player2 = await redis.hgetAsync(gameHash(room), 'player2')
+            if (socket.id === player2) {
+              from  = 'player2';
+
+            } else {
+              from  = 'viewer';
+              
+            }
+          }
+
+          console.log('💬', room, ':', timestamp, ':', msg)
+          io.to(room).emit("message", { message: msg, timestamp, from });
+        } else {
+          console.error('no room')
+        }
+
+      } else {
+        console.error('empty msg')
+      }
+
+    } catch (error) {
+      console.warn(socket.id, ip, 'error:\n', error)
+    }
+
+  });
+
   socket.on("disconnect", async () => {
     redis.decr("connnectedRightNow")
 
