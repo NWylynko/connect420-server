@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./build",
-    "lib": ["es2018"],
+    "lib": ["es2020"],
     "module": "commonjs",
-    "target": "es2018",
+    "target": "es2019",
     "alwaysStrict": true,
     "removeComments": true,
     "sourceMap": true,

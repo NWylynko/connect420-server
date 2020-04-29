@@ -1,6 +1,5 @@
 # [START memorystore_app_yaml_flex]
-runtime: nodejs
-env: flex
+runtime: nodejs12
 
 # Update with Redis instance network name
 network:
