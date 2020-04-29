@@ -1,1 +1,5 @@
 runtime: nodejs12
+env: flex
+
+network:
+  name: default
