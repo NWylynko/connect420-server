@@ -1,4 +1,4 @@
 runtime: nodejs12
 
 vpc_access_connector:
-  name: "projects/wylynko-com/locations/australia-southeast1/connectors/c420"
+  name: "projects/wylynko-com/locations/us-central1/connectors/c420"
