@@ -1,7 +1,1 @@
-# [START memorystore_app_yaml_flex]
 runtime: nodejs12
-
-# Update with Redis instance network name
-network:
-  name: default
-# [END memorystore_app_yaml_flex]
