@@ -1,5 +1,5 @@
-import dotenv from "dotenv"; dotenv.config();
-import redis from "redis";
+import * as dotenv from "dotenv"; dotenv.config();
+import * as redis from "redis";
 let client: redis.RedisClient = redis.createClient(process.env.REDIS_URL || 'redis://localhost:6379')
  
 client.monitor((err, res) => {
