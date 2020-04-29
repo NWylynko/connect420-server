@@ -1,6 +1,6 @@
-import * as dotenv from "dotenv"; dotenv.config();
+import dotenv from "dotenv"; dotenv.config();
 import { promisify } from "util";
-import * as redis from 'redis';
+import redis from 'redis';
 
 interface RedisClientAsync extends redis.RedisClient {
   setBoolean?: (key: string, bool: boolean) => Promise<"OK">,

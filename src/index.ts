@@ -1,5 +1,5 @@
-import * as sourceMapSupport from 'source-map-support'; sourceMapSupport.install();
-import * as dotenv from "dotenv"; dotenv.config();
+import sourceMapSupport from 'source-map-support'; sourceMapSupport.install();
+import dotenv from "dotenv"; dotenv.config();
 import Game from "./Game.js";
 import redis from './redis.js';
 import { io, app } from './connection.js';

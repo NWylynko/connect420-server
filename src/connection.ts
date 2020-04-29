@@ -1,11 +1,11 @@
-import * as dotenv from "dotenv"; dotenv.config();
+import dotenv from "dotenv"; dotenv.config();
 import { promisify } from "util";
-import * as express from 'express';
-import * as cors from 'cors';
-import * as helmet from 'helmet'
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet'
 import { createServer, Server} from 'http';
-import * as socketIo from 'socket.io';
-import * as redis from 'socket.io-redis'
+import socketIo from 'socket.io';
+import redis from 'socket.io-redis'
 
 interface ISocketIOAsync extends SocketIO.Server {
   closeAsync?: () => Promise<void>;

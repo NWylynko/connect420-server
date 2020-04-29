@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
     "outDir": "./build",
-    "lib": ["ES2020"],
+    "lib": ["es2018"],
     "module": "commonjs",
-    "target": "es2019",
+    "target": "es2018",
     "alwaysStrict": true,
     "removeComments": true,
     "sourceMap": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true
   },
   "exclude": [
     "**/*.test.ts"
