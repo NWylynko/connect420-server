@@ -16,7 +16,6 @@ describe('generateBoard', () => {
     expect(generateBoard(7, 7)).toStrictEqual(board)
   })
 
-
 })
 
 describe('convertToBoard', () => {
