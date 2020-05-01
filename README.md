@@ -61,8 +61,8 @@ services:
 ```
 
 # environment variables
-### can be defined from a .env file 
-- PORT - default 3001 - tells server what port to listen on for http and ws requests / connections
+### can be defined from a .env file, set in a docker-compose under environment, exported straight to the shell, etc
+- PORT - default 3001 - tells server what port to listen on for http and ws (socketio) requests / connections
 - NODE_ENV - either 'production' or 'development' - run the server either in production or development mode
 - REDIS_URL - default redis://localhost:6379 - tells the server where the redis server is running
-- CORS - default http://localhost:3000 - set to the url the client is hosted at otherwise the client wont be able to connect
+- CORS - default ["http://localhost:3000"] - set to an array of origins (the url the client is hosted at) otherwise the client wont be able to connect // make sure to use " instead of ' as json parser will through an error on '

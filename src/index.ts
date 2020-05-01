@@ -1,5 +1,5 @@
 import sourceMapSupport from 'source-map-support'; sourceMapSupport.install();
-import dotenv from "dotenv"; dotenv.config();
+import { NODE_ENV, VERSION } from './env.js';
 import Game from "./Game.js";
 import redis from './redis.js';
 import { io, app } from './connection.js';
@@ -10,14 +10,14 @@ import validator from 'validator';
 import { Request as IRequest, Response as IResponse } from 'express';
 import { Socket as ISocket } from 'socket.io';
 
-console.log('🏃 starting connect420 server || version:', process.env.npm_package_version, 'in', process.env.NODE_ENV, 'mode')
+console.log('🏃 starting connect420 server || version:', VERSION, 'in', NODE_ENV, 'mode')
 console.log('⏰', Date())
 
 app.get('/version', async (req: IRequest, res: IResponse) => {
 
-  let response: { version: string, development?: boolean } = { version: process.env.npm_package_version }
+  let response: { version: string, development?: boolean } = { version: VERSION }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (NODE_ENV === 'development') {
     response.development = true;
   }
 
