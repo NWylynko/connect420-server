@@ -1,5 +1,6 @@
 import sourceMapSupport from "source-map-support";
 sourceMapSupport.install();
+const startTime = Date.now();
 import { NODE_ENV, VERSION } from "./env.js";
 import Game from "./Game.js";
 import redis from "./redis.js";
@@ -265,9 +266,10 @@ io.on("connection", async (socket: ISocket) => {
 
 process.on("SIGTERM", async () => {
   try {
+    console.log("goodbye 👋 closing connections");
     await io.closeAsync();
     await redis.quitAsync();
-    console.log("goodbye 👋");
+    console.log("✨ Done in", (Date.now() - startTime) / 1000 + "s");
     process.exit(0);
   } catch (error) {
     process.exit(1);
