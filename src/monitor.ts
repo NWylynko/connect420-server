@@ -1,11 +1,13 @@
-import { REDIS_URL } from './env.js';
+import { REDIS_URL } from "./env.js";
 import redis from "redis";
-let client: redis.RedisClient = redis.createClient(REDIS_URL || 'redis://localhost:6379')
- 
-client.monitor((err, res) => {
+const client: redis.RedisClient = redis.createClient(
+  REDIS_URL || "redis://localhost:6379"
+);
+
+client.monitor(() => {
   console.log("Entering monitoring mode.");
 });
- 
-client.on("monitor", (time, args, rawReply) => {
+
+client.on("monitor", (time, args) => {
   console.log(time + ": " + args);
 });
