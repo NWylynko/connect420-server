@@ -66,3 +66,4 @@ services:
 - NODE_ENV - either 'production' or 'development' - run the server either in production or development mode
 - REDIS_URL - default redis://localhost:6379 - tells the server where the redis server is running
 - CORS - default ["http://localhost:3000"] - set to an array of origins (the url the client is hosted at) otherwise the client wont be able to connect // make sure to use " instead of ' as json parser will through an error on '
+- CORS_ALLOW_UNKNOWN_ORIGIN - 'true' or 'false' (false if undefined / by default) - allows http request from from an unknown origin, most likely when someone goes to the api in a browser instead of a the request coming from the hosted client website itself

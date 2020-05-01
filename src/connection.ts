@@ -1,4 +1,4 @@
-import { CORS, REDIS_URL, PORT } from "./env.js";
+import { CORS, REDIS_URL, PORT, CORS_ALLOW_UNKNOWN_ORIGIN } from "./env.js";
 import { promisify } from "util";
 import express from "express";
 import cors from "cors";
@@ -21,9 +21,13 @@ const corsOptions: cors.CorsOptions = {
   ) {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
     }
+
+    if (CORS_ALLOW_UNKNOWN_ORIGIN === "true" && origin === undefined) {
+      callback(null, true);
+    }
+
+    callback(new Error("Not allowed by CORS"));
   },
 };
 

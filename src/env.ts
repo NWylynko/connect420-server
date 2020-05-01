@@ -6,13 +6,27 @@ interface Env extends NodeJS.ProcessEnv {
   REDIS_URL?: string;
   PORT?: string;
   CORS?: string;
+  CORS_ALLOW_UNKNOWN_ORIGIN?: "true" | "false";
 }
 
-const { NODE_ENV, REDIS_URL, PORT, CORS }: Env = process.env;
+const {
+  NODE_ENV,
+  REDIS_URL,
+  PORT,
+  CORS,
+  CORS_ALLOW_UNKNOWN_ORIGIN,
+}: Env = process.env;
 const VERSION: string = process.env.npm_package_version;
 
 if (NODE_ENV === "development") {
-  console.log({ NODE_ENV, REDIS_URL, PORT, CORS, VERSION });
+  console.log({
+    NODE_ENV,
+    REDIS_URL,
+    PORT,
+    CORS,
+    VERSION,
+    CORS_ALLOW_UNKNOWN_ORIGIN,
+  });
 }
 
-export { NODE_ENV, REDIS_URL, PORT, CORS, VERSION };
+export { NODE_ENV, REDIS_URL, PORT, CORS, VERSION, CORS_ALLOW_UNKNOWN_ORIGIN };
