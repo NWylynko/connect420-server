@@ -21,13 +21,11 @@ const corsOptions: cors.CorsOptions = {
   ) {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true);
-    }
-
-    if (CORS_ALLOW_UNKNOWN_ORIGIN === "true" && origin === undefined) {
+    } else if (CORS_ALLOW_UNKNOWN_ORIGIN === "true" && origin === undefined) {
       callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
     }
-
-    callback(new Error("Not allowed by CORS"));
   },
 };
 
