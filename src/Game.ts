@@ -123,7 +123,7 @@ export async function addCoin(
         if (gameState.draw) {
           win(room, player1, player2, currentPlayer, true);
         } else {
-          console.log(gameState.winners);
+          // console.log(gameState.winners);
           io.to(room).emit(
             "highlights",
             convertToBoard(7, 7, gameState.winners)
@@ -139,7 +139,7 @@ export async function addCoin(
 
         io.to(newPlayer).emit("status", 1);
       } else {
-        console.error("not a win state and no token placed");
+        // console.error("not a win state and no token placed");
       }
     }
   }

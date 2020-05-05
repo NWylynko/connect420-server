@@ -1,3 +1,4 @@
+import log from "./logger.js";
 import { CORS, REDIS_URL, PORT, CORS_ALLOW_UNKNOWN_ORIGIN } from "./env.js";
 import { promisify } from "util";
 import express from "express";
@@ -40,7 +41,7 @@ io.adapter(redis(REDIS_URL || "redis://localhost:6379"));
 const port: string | number = PORT || 3001;
 
 server.listen(port, () => {
-  console.log("👂 listening on", port);
+  log.success(`👂 listening on ${port}`);
 });
 
 io.closeAsync = promisify(io.close).bind(io);

@@ -1,3 +1,4 @@
+import log from "./logger.js";
 import { REDIS_URL } from "./env.js";
 import { promisify } from "util";
 import redis from "redis";
@@ -42,27 +43,27 @@ const client: RedisClientAsync = redis.createClient(
 );
 
 client.on("ready", () => {
-  console.log("✔️ redis is ready");
+  log.success(`redis is ready`);
 });
 
 client.on("connect", () => {
-  console.log("✔️ connected to redis");
+  log.success(`connected to redis`);
 });
 
 client.on("reconnecting", (delay: unknown, attempt: unknown) => {
-  console.log("♻️ redis is reconnecting", { delay, attempt });
+  log.warning(`redis is reconnecting ${delay}, ${attempt}`);
 });
 
 client.on("error", (error: unknown) => {
-  console.log("❗️ redis has an error: ", error);
+  log.error(`redis has an error: ${error}`);
 });
 
 client.on("end", () => {
-  console.log("❌ redis has been closed");
+  log.fail(`redis has been closed`);
 });
 
 client.on("warning", (warning: unknown) => {
-  console.log("🚨 redis has a warning: ", warning);
+  log.warning(`redis has a warning: ${warning}`);
 });
 
 client.getAsync = promisify(client.get).bind(client);
