@@ -32,7 +32,7 @@ export async function handleMessage(
           }
         }
         io.to(room).emit("message", { message: msg, timestamp, from });
-        return `${room}: ${timestamp}: ${msg}`;
+        return `${room}: ${from}: ${msg}`;
       } else {
         throw new Error("no room");
       }
