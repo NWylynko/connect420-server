@@ -1,7 +1,7 @@
 import log from "./logger.js";
 import { CORS, REDIS_URL, PORT, CORS_ALLOW_UNKNOWN_ORIGIN } from "./env.js";
 import { promisify } from "util";
-import express from "express";
+import express, { Request as IRequest, Response as IResponse } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { createServer, Server } from "http";
@@ -25,12 +25,13 @@ const corsOptions: cors.CorsOptions = {
     } else if (CORS_ALLOW_UNKNOWN_ORIGIN === "true" && origin === undefined) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error(`${origin} - Not allowed by CORS`));
     }
   },
 };
 
 app.use(cors(corsOptions));
+app.use(errorHandler);
 app.use(helmet());
 
 const server: Server = createServer(app);
@@ -45,3 +46,18 @@ server.listen(port, () => {
 });
 
 io.closeAsync = promisify(io.close).bind(io);
+
+function errorHandler(
+  err: Error,
+  req: IRequest,
+  res: IResponse,
+  next: () => void
+): void {
+  if (err) {
+    log.error(err.message);
+    res.status(500);
+    res.send(err.message);
+  } else {
+    next();
+  }
+}
