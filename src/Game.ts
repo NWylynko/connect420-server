@@ -174,7 +174,7 @@ async function win(
   }
 }
 
-async function getPlayers(
+export async function getPlayers(
   room: string
 ): Promise<{ player1: string; player2: string }> {
   const player1 = await getPlayer1(room);

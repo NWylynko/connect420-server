@@ -9,15 +9,13 @@ export async function handleName(
 ): Promise<string> {
   try {
     const name = validator.escape(unsafeName);
-    if (
-      !validator.isEmpty(name) && // cant be empty
-      validator.isLength(name, { max: 16 }) // cant be over 16 chars
-    ) {
-      redis.hmsetAsync(clientHash(socket.id), "name", name);
-      return `${socket.id} is ${name}`;
-    } else {
+
+    if (validator.isEmpty(name) || !validator.isLength(name, { max: 16 })) {
       throw new Error("didnt pass validation");
     }
+
+    redis.hmsetAsync(clientHash(socket.id), "name", name);
+    return `${socket.id} is ${name}`;
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
   }

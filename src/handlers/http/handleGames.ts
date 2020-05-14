@@ -8,6 +8,7 @@ export async function handleGames(
 ): Promise<string> {
   try {
     const ArrayOfClients = await redis.lrangeAsync("clients", 0, -1);
+
     const clients = await Promise.all(
       ArrayOfClients.map(async (key) => {
         try {
@@ -18,7 +19,9 @@ export async function handleGames(
         }
       })
     );
+
     const ArrayOfGames = await redis.lrangeAsync("games", 0, -1);
+
     const games = await Promise.all(
       ArrayOfGames.map(async (key) => {
         try {
@@ -34,6 +37,7 @@ export async function handleGames(
         }
       })
     );
+
     res.json({
       error: null,
       inLobby: await redis.lrangeAsync("inLobby", 0, -1),
@@ -45,6 +49,7 @@ export async function handleGames(
       ArrayOfClients,
       clients,
     });
+
     return "Good";
   } catch (error) {
     res.json({ error: JSON.stringify(error) });

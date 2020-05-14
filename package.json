@@ -1,6 +1,6 @@
 {
   "name": "connect420-server",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
