@@ -21,6 +21,16 @@ module.exports = {
 
     "@typescript-eslint/no-use-before-define": "off"
 
-  }
+  },
+
+  env: {
+    node: true,  // for `console`
+    'jest/globals': true,  // describe, test, expect
+  },
+  
+  plugins: [
+    '@typescript-eslint',
+    'jest',
+  ]
 
 };
