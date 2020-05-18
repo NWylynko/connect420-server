@@ -3970,10 +3970,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-pleasant-logs@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/pleasant-logs/-/pleasant-logs-0.3.1.tgz#f5951c4ac97ea27d5bd1a9ecf7c8e1fcd0946088"
-  integrity sha512-zpD+yJ0bNZ7WUMky7fQPhPdfdU4D0kkS5er0+zm2Eh7GdGC7MWSQPJHgYqxhpNZ2W6L8r3chP8+ZbwNKfbOvlA==
+pleasant-logs@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/pleasant-logs/-/pleasant-logs-0.4.1.tgz#3c18cd7bc97440a793cb1dc0540cc1a54c31941a"
+  integrity sha512-7eqLMEQ5e1JXNeKym8dBPv/fpll4JDJkoNets/2ItzI/aAEKa6xpOElsjQsmZsx9kx3n+/zSQTV1oh85UFtAkA==
 
 pn@^1.1.0:
   version "1.1.0"

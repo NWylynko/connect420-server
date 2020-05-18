@@ -30,19 +30,19 @@ export async function handleConnection(socket: SocketIO): Promise<string> {
     redis.hmsetAsync(clientHash(socket.id), "ip", socket.ip);
 
     socket.on("name", (unsafeName) =>
-      log.watch("ws name", () => handleName(socket, unsafeName))
+      log.process("ws name", () => handleName(socket, unsafeName))
     );
     socket.on("room", (unsafeRoom) =>
-      log.watch("ws room", () => handleRoom(socket, unsafeRoom))
+      log.process("ws room", () => handleRoom(socket, unsafeRoom))
     );
     socket.on("addCoin", ({ y }) =>
-      log.watch("ws addCoin", () => handleNewCoin(socket, { y }))
+      log.process("ws addCoin", () => handleNewCoin(socket, { y }))
     );
     socket.on("message", (msg) =>
-      log.watch("ws message", () => handleMessage(socket, msg))
+      log.process("ws message", () => handleMessage(socket, msg))
     );
     socket.on("disconnect", () =>
-      log.watch("ws diconnect", () => handleDisconnect(socket))
+      log.process("ws diconnect", () => handleDisconnect(socket))
     );
 
     return `uuid: ${socket.id} ip: ${socket.ip}`;

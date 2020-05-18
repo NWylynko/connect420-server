@@ -19,20 +19,20 @@ log.info(
 log.info(`⏰ ${Date()}`);
 
 app.get("/version", (req: IRequest, res: IResponse) =>
-  log.watch("http /version", () => httpHandlers.handleVersion(req, res))
+  log.process("http /version", () => httpHandlers.handleVersion(req, res))
 );
 app.get("/leaderboard", (req: IRequest, res: IResponse) =>
-  log.watch("http /leaderboard", () => httpHandlers.handleLeaderBoard(req, res))
+  log.process("http /leaderboard", () => httpHandlers.handleLeaderBoard(req, res))
 );
 app.get("/stats", (req: IRequest, res: IResponse) =>
-  log.watch("http /stats", () => httpHandlers.handleStats(req, res))
+  log.process("http /stats", () => httpHandlers.handleStats(req, res))
 );
 app.get("/games", (req: IRequest, res: IResponse) =>
-  log.watch("http /games", () => httpHandlers.handleGames(req, res))
+  log.process("http /games", () => httpHandlers.handleGames(req, res))
 );
 
 io.on("connection", (socket: ISocket) =>
-  log.watch("ws new Connection", () => handleConnection(socket))
+  log.process("ws new Connection", () => handleConnection(socket))
 );
 
 process.on("SIGTERM", async () => {

@@ -1,6 +1,6 @@
 {
   "name": "connect420-server",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "tsc",
     "watch": "nodemon",
     "watch:inspect": "nodemon --nolazy --inspect-brk=9229",
-    "test": "jest",
+    "test": "jest --coverage",
     "test:watch": "jest --coverage --watch --watchman --silent",
     "lint": "eslint 'src/**/*.ts' --fix",
     "lint:ci": "eslint 'src/**/*.ts'"
@@ -21,7 +21,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "helmet": "^3.22.0",
-    "pleasant-logs": "^0.4.0",
+    "pleasant-logs": "^0.4.1",
     "redis": "^3.0.2",
     "socket.io": "^2.3.0",
     "socket.io-redis": "^5.2.0",

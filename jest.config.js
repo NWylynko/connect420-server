@@ -9,6 +9,5 @@ export default {
       lines: 80,
       statements: 80,
     },
-  },
-  coverageReporters: ["json", "lcov", "text", "clover"],
+  }
 };
