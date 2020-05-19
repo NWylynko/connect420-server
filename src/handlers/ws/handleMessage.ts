@@ -5,7 +5,7 @@ import validator from "validator";
 import { SocketIO } from "../ws.js";
 import { getPlayers } from "../../Game.js";
 
-export async function handleMessage(
+export const handleMessage = async (
   socket: SocketIO,
   {
     message,
@@ -14,7 +14,7 @@ export async function handleMessage(
     message: string;
     timestamp: number;
   }
-): Promise<string> {
+): Promise<string> => {
   try {
     const msg = validator.escape(message);
 
@@ -41,4 +41,4 @@ export async function handleMessage(
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
   }
-}
+};

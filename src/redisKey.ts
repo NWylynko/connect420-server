@@ -1,15 +1,15 @@
-export function gameKey(room: string, key: string): string {
+export const gameKey = (room: string, key: string): string => {
   return `game:${room}:${key}`;
-}
+};
 
-export function clientKey(id: string, key: string): string {
+export const clientKey = (id: string, key: string): string => {
   return `client:${id}:${key}`;
-}
+};
 
-export function gameHash(room: string): string {
+export const gameHash = (room: string): string => {
   return `game:${room}`;
-}
+};
 
-export function clientHash(id: string): string {
+export const clientHash = (id: string): string => {
   return `client:${id}`;
-}
+};

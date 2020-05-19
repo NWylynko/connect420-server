@@ -2,7 +2,7 @@ import Game from "../../Game.js";
 import redis from "../../redis.js";
 import { SocketIO } from "../ws.js";
 
-export async function handleDisconnect(socket: SocketIO): Promise<string> {
+export const handleDisconnect = async (socket: SocketIO): Promise<string> => {
   try {
     redis.decr("connnectedRightNow");
     redis.lremAsync("inLobby", 1, socket.id); // remove id from lobby (they probably arnt in the lobby though)
@@ -12,4 +12,4 @@ export async function handleDisconnect(socket: SocketIO): Promise<string> {
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
   }
-}
+};

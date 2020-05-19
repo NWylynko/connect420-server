@@ -1,15 +1,15 @@
 import { Request as IRequest, Response as IResponse } from "express";
 import redis from "../../redis.js";
 
-export async function handleLeaderBoard(
+export const handleLeaderBoard = async (
   req: IRequest,
   res: IResponse
-): Promise<string> {
+): Promise<string> => {
   try {
     const _leaderboard = await redis.zrevrangeAsync(
       "leaderboard",
       0,
-      9,
+      9, // first ten
       "WITHSCORES"
     );
     const leaderboard: {
@@ -30,4 +30,4 @@ export async function handleLeaderBoard(
     res.json({ error, leaderboard: [] });
     throw new Error(error);
   }
-}
+};

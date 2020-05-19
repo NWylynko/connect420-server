@@ -1,16 +1,16 @@
 import { Request as IRequest, Response as IResponse } from "express";
 import redis from "../../redis.js";
 
-export async function handleStats(
+export const handleStats = async (
   req: IRequest,
   res: IResponse
-): Promise<string> {
+): Promise<string> => {
   try {
     res.json({
+      connectedRightNow: await redis.getAsync("connnectedRightNow"),
       error: null,
       numInLobby: await redis.llenAsync("inLobby"),
       numOfAllClients: await redis.getAsync("numOfAllClients"),
-      connectedRightNow: await redis.getAsync("connnectedRightNow"),
       gamesPlayed: await redis.getAsync("gamesPlayed"),
     });
     return "Good";
@@ -18,4 +18,4 @@ export async function handleStats(
     res.json({ error: JSON.stringify(error) });
     throw new Error(error);
   }
-}
+};

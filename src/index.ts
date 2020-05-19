@@ -22,7 +22,9 @@ app.get("/version", (req: IRequest, res: IResponse) =>
   log.process("http /version", () => httpHandlers.handleVersion(req, res))
 );
 app.get("/leaderboard", (req: IRequest, res: IResponse) =>
-  log.process("http /leaderboard", () => httpHandlers.handleLeaderBoard(req, res))
+  log.process("http /leaderboard", () =>
+    httpHandlers.handleLeaderBoard(req, res)
+  )
 );
 app.get("/stats", (req: IRequest, res: IResponse) =>
   log.process("http /stats", () => httpHandlers.handleStats(req, res))

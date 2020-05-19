@@ -4,14 +4,14 @@ import { clientHash } from "../../redisKey.js";
 import validator from "validator";
 import { SocketIO } from "../ws.js";
 
-export async function handleNewCoin(
+export const handleNewCoin = async (
   socket: SocketIO,
   {
     y,
   }: {
     y: number | string;
   }
-): Promise<string> {
+): Promise<string> => {
   try {
     if (!validator.isInt(y.toString(), { min: 0, max: 6 }))
       throw new Error("didnt pass validation");
@@ -25,4 +25,4 @@ export async function handleNewCoin(
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
   }
-}
+};

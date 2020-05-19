@@ -3,10 +3,10 @@ import { clientHash } from "../../redisKey.js";
 import validator from "validator";
 import { SocketIO } from "../ws.js";
 
-export async function handleName(
+export const handleName = async (
   socket: SocketIO,
   unsafeName: string
-): Promise<string> {
+): Promise<string> => {
   try {
     const name = validator.escape(unsafeName);
 
@@ -19,4 +19,4 @@ export async function handleName(
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
   }
-}
+};

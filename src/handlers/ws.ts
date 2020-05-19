@@ -14,7 +14,7 @@ export interface SocketIO extends ISocket {
   ip?: string;
 }
 
-export async function handleConnection(socket: SocketIO): Promise<string> {
+export const handleConnection = async (socket: SocketIO): Promise<string> => {
   try {
     // ip code modified from https://stackoverflow.com/a/59020843
     socket.ip =
@@ -49,4 +49,4 @@ export async function handleConnection(socket: SocketIO): Promise<string> {
   } catch (error) {
     throw new Error(error);
   }
-}
+};

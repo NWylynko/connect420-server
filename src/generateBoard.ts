@@ -7,10 +7,7 @@
  * @param {number} rows number of rows (y)
  * @returns {number[][]} board[x][y]
  */
-export default function generateBoard(
-  columns: number,
-  rows: number
-): number[][] {
+const generateBoard = (columns: number, rows: number): number[][] => {
   const board: number[][] = [];
   for (let x = 0; x < columns; x++) {
     board.push([]);
@@ -19,7 +16,9 @@ export default function generateBoard(
     }
   }
   return board;
-}
+};
+
+export default generateBoard;
 
 /**
  *
@@ -37,11 +36,11 @@ export default function generateBoard(
  * @param {number[][]} points an array of arrays with the x and y of the point
  * @returns {number[][]} board[x][y]
  */
-export function convertToBoard(
+export const convertToBoard = (
   columns: number,
   rows: number,
   points: number[][]
-): number[][] {
+): number[][] => {
   const template = generateBoard(columns, rows);
 
   points.forEach(([x, y]) => {
@@ -49,4 +48,4 @@ export function convertToBoard(
   });
 
   return template;
-}
+};

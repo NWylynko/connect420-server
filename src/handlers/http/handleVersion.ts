@@ -1,10 +1,10 @@
 import { NODE_ENV, VERSION } from "../../env.js";
 import { Request as IRequest, Response as IResponse } from "express";
 
-export async function handleVersion(
+export const handleVersion = async (
   req: IRequest,
   res: IResponse
-): Promise<string> {
+): Promise<string> => {
   try {
     const response: {
       version: string;
@@ -21,4 +21,4 @@ export async function handleVersion(
     res.json({ error, version: "???", development: false });
     throw new Error(error);
   }
-}
+};

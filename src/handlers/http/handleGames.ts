@@ -2,10 +2,10 @@ import { Request as IRequest, Response as IResponse } from "express";
 import redis from "../../redis.js";
 import { gameKey, clientHash, gameHash } from "../../redisKey.js";
 
-export async function handleGames(
+export const handleGames = async (
   req: IRequest,
   res: IResponse
-): Promise<string> {
+): Promise<string> => {
   try {
     const ArrayOfClients = await redis.lrangeAsync("clients", 0, -1);
 
@@ -39,10 +39,10 @@ export async function handleGames(
     );
 
     res.json({
+      connectedRightNow: await redis.getAsync("connnectedRightNow"),
       error: null,
       inLobby: await redis.lrangeAsync("inLobby", 0, -1),
       numOfAllClients: await redis.getAsync("numOfAllClients"),
-      connectedRightNow: await redis.getAsync("connnectedRightNow"),
       gamesPlayed: await redis.getAsync("gamesPlayed"),
       ArrayOfGames,
       games,
@@ -55,4 +55,4 @@ export async function handleGames(
     res.json({ error: JSON.stringify(error) });
     throw new Error(error);
   }
-}
+};

@@ -16,10 +16,7 @@ export const app: express.Application = express();
 
 const whitelist: string[] = JSON.parse(CORS || '["http://localhost:3000"]');
 const corsOptions: cors.CorsOptions = {
-  origin: function (
-    origin: string,
-    callback: (err: Error, allow?: boolean) => void
-  ) {
+  origin: (origin: string, callback: (err: Error, allow?: boolean) => void) => {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else if (CORS_ALLOW_UNKNOWN_ORIGIN === "true" && origin === undefined) {
@@ -28,6 +25,22 @@ const corsOptions: cors.CorsOptions = {
       callback(new Error(`${origin} - Not allowed by CORS`));
     }
   },
+};
+
+const errorHandler = (
+  err: Error,
+  req: IRequest,
+  res: IResponse,
+  next: () => void
+): void => {
+  if (err) {
+    const serverError = 500;
+    log.error(err.message);
+    res.status(serverError);
+    res.send(err.message);
+  } else {
+    next();
+  }
 };
 
 app.use(cors(corsOptions));
@@ -39,25 +52,11 @@ export const io: SocketIOAsync = socketIo(server);
 
 io.adapter(redis(REDIS_URL || "redis://localhost:6379"));
 
-const port: string | number = PORT || 3001;
+const defaultPort = 3001;
+const port: string | number = PORT || defaultPort;
 
 server.listen(port, () => {
   log.success(`👂 listening on ${port}`);
 });
 
 io.closeAsync = promisify(io.close).bind(io);
-
-function errorHandler(
-  err: Error,
-  req: IRequest,
-  res: IResponse,
-  next: () => void
-): void {
-  if (err) {
-    log.error(err.message);
-    res.status(500);
-    res.send(err.message);
-  } else {
-    next();
-  }
-}

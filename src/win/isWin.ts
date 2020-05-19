@@ -3,7 +3,7 @@ import isHorizontalWin from "./isHorizontalWin.js";
 import isDiagonalWin from "./isDiagonalWin.js";
 import isGameADraw from "./isGameADraw.js";
 
-export default function isWin(board: number[][]): IsWin {
+const isWin = (board: number[][]): IsWin => {
   const Draw = isGameADraw(board);
   if (Draw.win) {
     return Draw;
@@ -25,4 +25,6 @@ export default function isWin(board: number[][]): IsWin {
   }
 
   return { win: false, winners: [] };
-}
+};
+
+export default isWin;

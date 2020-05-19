@@ -4,11 +4,12 @@ import { io } from "../../connection.js";
 import { gameHash } from "../../redisKey.js";
 import validator from "validator";
 import { SocketIO } from "../ws.js";
+import gameStatus from "../../gameStatus.js";
 
-export async function handleRoom(
+export const handleRoom = async (
   socket: SocketIO,
   unsafeRoom: string
-): Promise<string> {
+): Promise<string> => {
   try {
     const room = validator.escape(unsafeRoom);
     if (validator.isEmpty(room) || !validator.isLength(room, { max: 12 })) {
@@ -17,14 +18,14 @@ export async function handleRoom(
     if (!room) throw new Error("room is undefined");
 
     if (room === "findingAGame") {
-      socket.emit("status", 9);
+      socket.emit("status", gameStatus.looking);
       redis.rpush("inLobby", socket.id);
       const lenOfLobby = await redis.llenAsync("inLobby");
       if (lenOfLobby >= 2) {
-        const room = Math.random().toString(36).substr(2, 5);
-        const player1 = await redis.lpopAsync("inLobby");
+        const room: string = Math.random().toString(36).substr(2, 5); // generate random room
+        const player1: string = await redis.lpopAsync("inLobby");
         io.to(player1).emit("setRoom", room);
-        const player2 = await redis.lpopAsync("inLobby");
+        const player2: string = await redis.lpopAsync("inLobby");
         io.to(player2).emit("setRoom", room);
         return `findingAGame redirecting to board ${room}`;
       } else {
@@ -47,4 +48,4 @@ export async function handleRoom(
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
   }
-}
+};

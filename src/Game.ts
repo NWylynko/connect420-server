@@ -1,11 +1,11 @@
 import { gameKey, clientHash, gameHash } from "./redisKey.js";
 import isWin from "./win/isWin.js";
 import generateBoard, { convertToBoard } from "./generateBoard.js";
-
+import gameStatus from "./gameStatus.js";
 import redis from "./redis.js";
 import { io } from "./connection.js";
 
-export async function addPlayer(room: string, id: string): Promise<void> {
+export const addPlayer = async (room: string, id: string): Promise<void> => {
   redis.rpush(gameKey(room, "clients"), id); // add socket.id to the array of clients
   redis.hmsetAsync(clientHash(id), "room", room); // set the clients room to the room id
 
@@ -20,14 +20,14 @@ export async function addPlayer(room: string, id: string): Promise<void> {
     start(room); // two players have joined
   } else {
     // if a third client joins they are just going to watch
-    io.to(id).emit("status", 3);
+    io.to(id).emit("status", gameStatus.fullGame);
     io.to(id).emit("info", { type: "viewer" });
     const board = await redis.hgetJSON(gameHash(room), "board");
     io.to(id).emit("board", board);
   }
-}
+};
 
-export async function removePlayer(id: string): Promise<void> {
+export const removePlayer = async (id: string): Promise<void> => {
   const room = await redis.hgetAsync(clientHash(id), "room"); // get room of player
 
   deleteClientData(id);
@@ -47,26 +47,26 @@ export async function removePlayer(id: string): Promise<void> {
 
       if (id === player1 || id === player2) {
         if (isRunning) {
-          io.to(room).emit("status", 8);
+          io.to(room).emit("status", gameStatus.playerLeft);
         }
         deleteGameData(room);
       }
     }
   }
-}
+};
 
-async function deleteClientData(id: string): Promise<boolean> {
+const deleteClientData = async (id: string): Promise<boolean> => {
   redis.del(clientHash(id));
   return true;
-}
+};
 
-async function deleteGameData(room: string): Promise<boolean> {
+const deleteGameData = async (room: string): Promise<boolean> => {
   redis.del([gameKey(room, "clients"), gameHash(room)]);
   redis.lremAsync("games", 1, room);
   return true;
-}
+};
 
-async function start(room: string): Promise<void> {
+const start = async (room: string): Promise<void> => {
   redis.hsetJSON(gameHash(room), "board", generateBoard(7, 7)); // generate a new board
 
   redis.hsetBoolean(gameHash(room), "running", true); // set running to true
@@ -78,18 +78,18 @@ async function start(room: string): Promise<void> {
   io.to(player2).emit("info", { type: "player2" });
 
   // set there status's respectively
-  io.to(player1).emit("status", 1);
-  io.to(player2).emit("status", 2);
+  io.to(player1).emit("status", gameStatus.yourTurn);
+  io.to(player2).emit("status", gameStatus.othersTurn);
 
   const board = await redis.hgetJSON(gameHash(room), "board");
   io.to(room).emit("board", board);
-}
+};
 
-export async function addCoin(
+export const addCoin = async (
   room: string,
   id: string,
   y: string | number
-): Promise<void> {
+): Promise<void> => {
   const isRunning = await redis.hgetBoolean(gameHash(room), "running");
 
   if (isRunning) {
@@ -106,8 +106,9 @@ export async function addCoin(
       let placed = false;
 
       const board: number[][] = await redis.hgetJSON(gameHash(room), "board");
-
-      for (let TryX = 6; TryX >= 0; TryX--) {
+      const boardSize = 6;
+      for (let TryX = boardSize; TryX >= 0; TryX--) {
+        // find where to put coin
         if (board[TryX][y] === 0) {
           board[TryX][y] = id === player1 ? 1 : 2;
           placed = true;
@@ -131,40 +132,40 @@ export async function addCoin(
           win(room, player1, player2, currentPlayer);
         }
       } else if (placed) {
-        io.to(currentPlayer).emit("status", 4);
+        io.to(currentPlayer).emit("status", gameStatus.greatPlay);
 
         const newPlayer = id === player1 ? player2 : player1;
 
         redis.hmsetAsync(gameHash(room), "current_player", newPlayer);
 
-        io.to(newPlayer).emit("status", 1);
+        io.to(newPlayer).emit("status", gameStatus.yourTurn);
       } else {
         // console.error("not a win state and no token placed");
       }
     }
   }
-}
+};
 
-async function win(
+const win = async (
   room: string,
   player1: string,
   player2: string,
   currentPlayer: string,
   draw?: boolean
-): Promise<void> {
+): Promise<void> => {
   redis.hsetBoolean(gameHash(room), "running", false); // set running to false
 
   redis.incr("gamesPlayed"); // add 1 to number of games played
 
   if (draw) {
     // tell room the game is a draw
-    io.to(room).emit("status", 5);
+    io.to(room).emit("status", gameStatus.draw);
   } else {
     const Winner = currentPlayer;
     const Loser = currentPlayer === player1 ? player2 : player1;
 
-    io.to(Winner).emit("status", 6);
-    io.to(Loser).emit("status", 7);
+    io.to(Winner).emit("status", gameStatus.win);
+    io.to(Loser).emit("status", gameStatus.lost);
 
     const WinnerName = await redis.hgetAsync(clientHash(Winner), "name");
 
@@ -172,24 +173,24 @@ async function win(
       redis.zincrbyAsync("leaderboard", 1, WinnerName);
     }
   }
-}
+};
 
-export async function getPlayers(
+export const getPlayers = async (
   room: string
-): Promise<{ player1: string; player2: string }> {
+): Promise<{ player1: string; player2: string }> => {
   const player1 = await getPlayer1(room);
   const player2 = await getPlayer2(room);
 
   return { player1, player2 };
-}
+};
 
-async function getPlayer1(room: string): Promise<string> {
+const getPlayer1 = async (room: string): Promise<string> => {
   return await redis.hgetAsync(gameHash(room), "player1");
-}
+};
 
-async function getPlayer2(room: string): Promise<string> {
+const getPlayer2 = async (room: string): Promise<string> => {
   return await redis.hgetAsync(gameHash(room), "player2");
-}
+};
 
 const Game = { addPlayer, removePlayer, addCoin };
 
