@@ -1,4 +1,7 @@
 # connect420-server
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/24cbb478ff744dadaee6771b8e82ff5b)](https://app.codacy.com/manual/nick1014375/connect420-server?utm_source=github.com&utm_medium=referral&utm_content=NWylynko/connect420-server&utm_campaign=Badge_Grade_Dashboard)
+
 Server for connect420, written in typescript with nodejs, socketio and redis.
 
 # dependencies
