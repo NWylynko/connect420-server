@@ -14,9 +14,9 @@ export default function isWin(board: number[][]): IsWin {
     return Vertical;
   }
 
-  const Horizonta = isHorizontalWin(board);
-  if (Horizonta.win) {
-    return Horizonta;
+  const Horizontal = isHorizontalWin(board);
+  if (Horizontal.win) {
+    return Horizontal;
   }
 
   const Diagonal = isDiagonalWin(board);
