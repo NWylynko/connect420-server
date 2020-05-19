@@ -13,5 +13,5 @@ WORKDIR /var/www/c420-server
 COPY --from=builder /var/www/c420-server/build ./build
 COPY package.json yarn.lock ./
 RUN yarn
-CMD node build/index.js
+CMD yarn start
 EXPOSE 3001
