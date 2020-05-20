@@ -21,11 +21,11 @@ const VERSION: string = process.env.npm_package_version;
 
 if (NODE_ENV === "development") {
   log.info(`--- env ---`);
-  log.info(`NODE_ENV: \t\t ${NODE_ENV}`);
-  log.info(`REDIS_URL: \t\t ${REDIS_URL}`);
-  log.info(`PORT: \t\t\t ${PORT}`);
-  log.info(`CORS: \t\t\t ${CORS}`);
-  log.info(`VERSION: \t\t\t ${VERSION}`);
+  log.info(`NODE_ENV: ${NODE_ENV}`);
+  log.info(`REDIS_URL: ${REDIS_URL}`);
+  log.info(`PORT: ${PORT}`);
+  log.info(`CORS: ${CORS}`);
+  log.info(`VERSION: ${VERSION}`);
   log.info(`CORS_ALLOW_UNKNOWN_ORIGIN: ${CORS_ALLOW_UNKNOWN_ORIGIN}`);
   log.info(`-----------`);
 }
