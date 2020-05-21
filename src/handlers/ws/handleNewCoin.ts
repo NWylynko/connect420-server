@@ -20,7 +20,7 @@ export const handleNewCoin = async (
 
     if (!room) throw new Error("room undefined");
 
-    Game.addCoin(room, socket.id, y);
+    await Game.addCoin(room, socket.id, y);
     return `added coin to column ${y}`;
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);

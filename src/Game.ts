@@ -102,46 +102,48 @@ export const addCoin = async (
     const isPlayer = id === player1 || id === player2;
     const isThereCurrentTurn = currentPlayer === id;
 
-    if (isPlayer && isThereCurrentTurn) {
-      let placed = false;
+    if (!isPlayer) throw new Error("isnt a player");
 
-      const board: number[][] = await redis.hgetJSON(gameHash(room), "board");
-      const boardSize = 6;
-      for (let TryX = boardSize; TryX >= 0; TryX--) {
-        // find where to put coin
-        if (board[TryX][y] === 0) {
-          board[TryX][y] = id === player1 ? 1 : 2;
-          placed = true;
-          io.to(room).emit("board", board);
-          redis.hsetJSON(gameHash(room), "board", board); // update board
-          TryX = 0; // exit out of loop
-        }
+    if (!isThereCurrentTurn) throw new Error("isnt players current turn");
+
+    let placed = false;
+
+    const board: number[][] = await redis.hgetJSON(gameHash(room), "board");
+    const boardSize = 6;
+    for (let TryX = boardSize; TryX >= 0; TryX--) {
+      // find where to put coin
+      if (board[TryX][y] === 0) {
+        board[TryX][y] = id === player1 ? 1 : 2;
+        placed = true;
+        io.to(room).emit("board", board);
+        redis.hsetJSON(gameHash(room), "board", board); // update board
+        TryX = 0; // exit out of loop
       }
+    }
 
-      const gameState = isWin(board);
+    const gameState = isWin(board);
 
-      if (gameState.win) {
-        if (gameState.draw) {
-          win(room, player1, player2, currentPlayer, true);
-        } else {
-          // console.log(gameState.winners);
-          io.to(room).emit(
-            "highlights",
-            convertToBoard(7, 7, gameState.winners)
-          );
-          win(room, player1, player2, currentPlayer);
-        }
-      } else if (placed) {
-        io.to(currentPlayer).emit("status", gameStatus.greatPlay);
-
-        const newPlayer = id === player1 ? player2 : player1;
-
-        redis.hmsetAsync(gameHash(room), "current_player", newPlayer);
-
-        io.to(newPlayer).emit("status", gameStatus.yourTurn);
+    if (gameState.win) {
+      if (gameState.draw) {
+        win(room, player1, player2, currentPlayer, true);
       } else {
-        // console.error("not a win state and no token placed");
+        // console.log(gameState.winners);
+        io.to(room).emit(
+          "highlights",
+          convertToBoard(7, 7, gameState.winners)
+        );
+        win(room, player1, player2, currentPlayer);
       }
+    } else if (placed) {
+      io.to(currentPlayer).emit("status", gameStatus.greatPlay);
+
+      const newPlayer = id === player1 ? player2 : player1;
+
+      redis.hmsetAsync(gameHash(room), "current_player", newPlayer);
+
+      io.to(newPlayer).emit("status", gameStatus.yourTurn);
+    } else {
+      throw new Error("not a win state and no token placed");
     }
   }
 };
@@ -171,6 +173,8 @@ const win = async (
 
     if (WinnerName) {
       redis.zincrbyAsync("leaderboard", 1, WinnerName);
+    } else {
+      throw new Error("winner doesnt have a name set")
     }
   }
 };

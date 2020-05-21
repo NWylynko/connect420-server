@@ -37,12 +37,12 @@ export const handleRoom = async (
         redis.hsetBoolean(gameHash(room), "exists", true);
         redis.rpush("games", room);
       }
-      socket.join(room, (error) => {
+      socket.join(room, (error: Error) => {
         if (error) {
-          throw new Error(error);
+          throw new Error(error.message);
         }
       });
-      Game.addPlayer(room, socket.id);
+      await Game.addPlayer(room, socket.id);
       return `-> ${socket.id} is in ${room}`;
     }
   } catch (error) {
