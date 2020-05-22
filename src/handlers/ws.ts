@@ -3,6 +3,7 @@ import redis from "../redis.js";
 import { clientHash } from "../redisKey.js";
 import { handleName } from "./ws/handleName.js";
 import { handleRoom } from "./ws/handleRoom.js";
+import { handleReplay } from "./ws/handleReplay.js";
 import { handleNewCoin } from "./ws/handleNewCoin.js";
 import { handleMessage } from "./ws/handleMessage.js";
 import { handleDisconnect } from "./ws/handleDisconnect.js";
@@ -34,6 +35,9 @@ export const handleConnection = async (socket: SocketIO): Promise<string> => {
     );
     socket.on("room", (unsafeRoom) =>
       log.process("ws room", () => handleRoom(socket, unsafeRoom))
+    );
+    socket.on("replay", (unsafeReplay) =>
+      log.process("ws replay", () => handleReplay(socket, unsafeReplay))
     );
     socket.on("addCoin", ({ y }) =>
       log.process("ws addCoin", () => handleNewCoin(socket, { y }))
