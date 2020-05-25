@@ -20,19 +20,16 @@ export const handleReplay = async (
     const room = await redis.hgetAsync(clientHash(socket.id), "room"); // get room of player
     const { player1, player2 } = await getPlayers(room);
 
-    log.info((socket.id === player1).toString());
-    log.info((socket.id === player2).toString());
-
     if (socket.id === player1) {
       redis.hmsetAsync(gameHash(room), "player1Replay", replay);
-      io.to(room).emit("replay", replay);
+      io.to(room).emit("replay", { player: "player1", replay });
       await checkForReplay(room);
       return replay
         ? `${socket.id} wants to replay`
         : `${socket.id} doesn't wants to replay`;
     } else if (socket.id === player2) {
       redis.hmsetAsync(gameHash(room), "player2Replay", replay);
-      io.to(room).emit("replay", replay);
+      io.to(room).emit("replay", { player: "player2", replay });
       await checkForReplay(room);
       return replay
         ? `${socket.id} wants to replay`
@@ -49,9 +46,6 @@ const checkForReplay = async (room: string): Promise<boolean> => {
   log.info("checking replay");
   const player1Replay = await redis.hgetAsync(gameHash(room), "player1Replay");
   const player2Replay = await redis.hgetAsync(gameHash(room), "player2Replay");
-
-  log.info(player1Replay);
-  log.info(player2Replay);
 
   if (player1Replay === "true" && player2Replay === "true") {
     const newRoom: string = Math.random().toString(36).substr(2, 5); // generate random room
