@@ -128,10 +128,7 @@ export const addCoin = async (
         win(room, player1, player2, currentPlayer, true);
       } else {
         // console.log(gameState.winners);
-        io.to(room).emit(
-          "highlights",
-          convertToBoard(7, 7, gameState.winners)
-        );
+        io.to(room).emit("highlights", convertToBoard(7, 7, gameState.winners));
         win(room, player1, player2, currentPlayer);
       }
     } else if (placed) {
@@ -174,7 +171,7 @@ const win = async (
     if (WinnerName) {
       redis.zincrbyAsync("leaderboard", 1, WinnerName);
     } else {
-      throw new Error("winner doesnt have a name set")
+      throw new Error("winner doesnt have a name set");
     }
   }
 };
