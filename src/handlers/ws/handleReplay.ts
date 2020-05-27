@@ -4,7 +4,6 @@ import validator from "validator";
 import { SocketIO } from "../ws.js";
 import { getPlayers } from "../../Game.js";
 import { io } from "../../connection.js";
-import log from "../../logger.js";
 
 export const handleReplay = async (
   socket: SocketIO,
@@ -43,7 +42,6 @@ export const handleReplay = async (
 };
 
 const checkForReplay = async (room: string): Promise<boolean> => {
-  log.info("checking replay");
   const player1Replay = await redis.hgetAsync(gameHash(room), "player1Replay");
   const player2Replay = await redis.hgetAsync(gameHash(room), "player2Replay");
 

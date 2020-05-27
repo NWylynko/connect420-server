@@ -27,33 +27,41 @@ export const addPlayer = async (room: string, id: string): Promise<void> => {
   }
 };
 
-export const removePlayer = async (id: string): Promise<void> => {
-  const room = await redis.hgetAsync(clientHash(id), "room"); // get room of player
+export const removePlayer = async (id: string, room?: string): Promise<void> => {
+  if (!room) {
+    room = await redis.hgetAsync(clientHash(id), "room"); // get room of player
+  }
 
   deleteClientData(id);
 
-  if (room) {
+  if (!room) {
     // user wont be in a room when they disconnect from the lobby to join a room
+    throw new Error("not in a room");
+  }
 
     redis.lremAsync(gameKey(room, "clients"), 1, id); // remove player from game clients
 
-    const clients = await redis.lrangeAsync(gameKey(room, "clients"), 0, -1); // get clients remaining
+    removeBoardIfNoClients(id, room);
 
-    if (clients.length === 0) {
-      deleteGameData(room);
-    } else {
-      const { player1, player2 } = await getPlayers(room);
-      const isRunning = await redis.hgetBoolean(gameHash(room), "running");
+};
 
-      if (id === player1 || id === player2) {
-        if (isRunning) {
-          io.to(room).emit("status", gameStatus.playerLeft);
-        }
-        deleteGameData(room);
+export const removeBoardIfNoClients = async (id: string, room: string): Promise<void> => {
+  const clients = await redis.lrangeAsync(gameKey(room, "clients"), 0, -1); // get clients remaining
+
+  if (clients.length === 0) {
+    deleteGameData(room);
+  } else {
+    const { player1, player2 } = await getPlayers(room);
+    const isRunning = await redis.hgetBoolean(gameHash(room), "running");
+
+    if (id === player1 || id === player2) {
+      if (isRunning) {
+        io.to(room).emit("status", gameStatus.playerLeft);
       }
+      deleteGameData(room);
     }
   }
-};
+}
 
 const deleteClientData = async (id: string): Promise<boolean> => {
   redis.del(clientHash(id));
