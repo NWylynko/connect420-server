@@ -1,6 +1,6 @@
 {
   "name": "connect420-server",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
@@ -17,6 +17,7 @@
     "@types/express": "^4.17.6",
     "@types/redis": "^2.8.18",
     "@types/socket.io-redis": "^1.0.25",
+    "bad-words": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

@@ -4,6 +4,9 @@ import { clientHash } from "../../redisKey.js";
 import validator from "validator";
 import { SocketIO } from "../ws.js";
 import { getPlayers } from "../../Game.js";
+import Filter from 'bad-words';
+
+const filter = new Filter();
 
 export const handleMessage = async (
   socket: SocketIO,
@@ -36,7 +39,7 @@ export const handleMessage = async (
         ? "player2"
         : "viewer";
 
-    io.to(room).emit("message", { message: msg, timestamp, from, name });
+    io.to(room).emit("message", { message: filter.clean(msg), timestamp, from, name });
     return `${room}: ${from}: ${msg}`;
   } catch (error) {
     throw new Error(`uuid: ${socket.id} ip: ${socket.ip} ${error}`);
