@@ -24,7 +24,7 @@ export const handleConnection = async (socket: SocketIO): Promise<string> => {
       "unknown";
 
     redis.incr("numOfAllClients");
-    redis.incr("connnectedRightNow");
+    redis.incr("connectedRightNow");
 
     redis.rpush("clients", socket.id);
 

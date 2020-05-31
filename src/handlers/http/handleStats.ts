@@ -7,7 +7,7 @@ export const handleStats = async (
 ): Promise<string> => {
   try {
     res.json({
-      connectedRightNow: await redis.getAsync("connnectedRightNow"),
+      connectedRightNow: await redis.getAsync("connectedRightNow"),
       error: null,
       numInLobby: await redis.llenAsync("inLobby"),
       numOfAllClients: await redis.getAsync("numOfAllClients"),

@@ -4,7 +4,7 @@ import { SocketIO } from "../ws.js";
 
 export const handleDisconnect = async (socket: SocketIO): Promise<string> => {
   try {
-    redis.decr("connnectedRightNow");
+    redis.decr("connectedRightNow");
     redis.lremAsync("inLobby", 1, socket.id); // remove id from lobby (they probably arnt in the lobby though)
     redis.lremAsync("clients", 1, socket.id); // remove id from array of clients
     await Game.removePlayer(socket.id);

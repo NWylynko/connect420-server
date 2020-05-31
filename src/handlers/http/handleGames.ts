@@ -39,7 +39,7 @@ export const handleGames = async (
     );
 
     res.json({
-      connectedRightNow: await redis.getAsync("connnectedRightNow"),
+      connectedRightNow: await redis.getAsync("connectedRightNow"),
       error: null,
       inLobby: await redis.lrangeAsync("inLobby", 0, -1),
       numOfAllClients: await redis.getAsync("numOfAllClients"),
