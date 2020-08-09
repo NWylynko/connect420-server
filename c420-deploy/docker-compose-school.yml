@@ -1,0 +1,71 @@
+version: "3"
+services:
+  c420-client0:
+    image: nwylynko/connect420
+    container_name: c420-client0
+    restart: unless-stopped
+    environment:
+      - REACT_APP_SERVER=http://10.50.14.148
+      - REACT_APP_SERVER_API=/c420
+    expose:
+      - 3000
+
+  c420-client1:
+    image: nwylynko/connect420
+    container_name: c420-client1
+    restart: unless-stopped
+    environment:
+      - REACT_APP_SERVER=http://10.50.14.148
+      - REACT_APP_SERVER_API=/c420
+    expose:
+      - 3000
+
+  c420-server0:
+    image: nwylynko/connect420-server
+    container_name: c420-server0
+    restart: unless-stopped
+    expose:
+      - 3001
+    environment:
+      - REDIS_URL=redis://cache
+      - CORS=["http://10.50.14.148"]
+      - CORS_ALLOW_UNKNOWN_ORIGIN=true
+    depends_on:
+      - redis
+
+  c420-server1:
+    image: nwylynko/connect420-server
+    container_name: c420-server1
+    restart: unless-stopped
+    expose:
+      - 3001
+    environment:
+      - REDIS_URL=redis://cache
+      - CORS=["http://10.50.14.148"]
+      - CORS_ALLOW_UNKNOWN_ORIGIN=true
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    container_name: cache
+    restart: unless-stopped
+    expose:
+      - 6379
+    volumes:
+      - "./redis:/data"
+
+  nginx:
+    image: nginx:1.15-alpine
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - c420-client0
+      - c420-client1
+      - c420-server0
+      - c420-server1
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
