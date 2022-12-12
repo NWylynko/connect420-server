@@ -20,7 +20,7 @@
     "bad-words": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "helmet": "^3.22.0",
     "pleasant-logs": "^0.4.5",
     "redis": "^3.0.2",
